@@ -30,6 +30,7 @@ class Program {
                 var isSynchronousMode = parseResult.GetValue(Options.SynchronousModeOption);
 
                 var boardBuilders = new Model.BoardBuilder[boardsNumber!.Value];
+                var playerChars = players.Select(p => p[0]).ToArray();
 
                 for(var i = 0; i < boardsNumber!; i+=1) {
                     boardBuilders[i] = new Model.BoardBuilder(size!.Value, size!.Value);
@@ -37,7 +38,7 @@ class Program {
                 GameLogic.RunGame (
                     file,
                     doForceNewGame,
-                    players.Select(p => p.Single()).ToArray(),
+                    playerChars,
                     boardBuilders,
                     (joinAsPlayer ?? "").Cast<char?>().SingleOrDefault(),
                     isRandomPlayerOrder: isRandomPlayer,

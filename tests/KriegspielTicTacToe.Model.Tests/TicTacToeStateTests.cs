@@ -35,7 +35,7 @@ public class TicTacToeStateTests {
             isSynchronousMode: false
         );
         state.PlayManager.CurrentTurnPlayerIndex.Should().Be(0);
-        state.PlayManager.CurrentTurnPlayer.Should().Be('X');
+        state.PlayManager.CurrentTurnPlayer.AsT0.Value.Should().Be('X');
     }
 
     [Fact]
@@ -47,9 +47,9 @@ public class TicTacToeStateTests {
             isSynchronousMode: false
         );
         
-        state.PlayManager.NextTurn();
+        state.PlayManager.NextTurn(isCurrentPlayerResigning: false);
         state.PlayManager.CurrentTurnPlayerIndex.Should().Be(1);
-        state.PlayManager.CurrentTurnPlayer.Should().Be('O');
+        state.PlayManager.CurrentTurnPlayer.AsT0.Value.Should().Be('O');
     }
 
     [Fact]
@@ -75,14 +75,14 @@ public class TicTacToeStateTests {
         
         state.PlayManager.RoundIndex.Should().Be(0);
         state.PlayManager.NumberOfActivePlayers.Should().Be(2);
-        state.PlayManager.IsRoundComplete.Should().BeFalse();
+        state.PlayManager.IsNewRound.Should().BeFalse();
         
-        state.PlayManager.NextTurn();
+        state.PlayManager.NextTurn(isCurrentPlayerResigning: false);
         state.PlayManager.RoundIndex.Should().Be(0);
 
-        state.PlayManager.NextTurn();
+        state.PlayManager.NextTurn(isCurrentPlayerResigning: false);
         state.PlayManager.RoundIndex.Should().Be(1);
-        state.PlayManager.IsRoundComplete.Should().BeTrue();
+        state.PlayManager.IsNewRound.Should().BeTrue();
     }
 
     [Fact]
@@ -94,18 +94,18 @@ public class TicTacToeStateTests {
             isSynchronousMode: false
         );
         state.PlayManager.ResignPlayer('X');
+        state.PlayManager.NextTurn(isCurrentPlayerResigning: true);
         
         state.PlayManager.NumberOfActivePlayers.Should().Be(1);
-              
         state.PlayManager.CurrentTurnPlayerIndex.Should().Be(0);
         state.PlayManager.RoundIndex.Should().Be(0);
-        state.PlayManager.IsRoundComplete.Should().BeFalse();
+        state.PlayManager.IsNewRound.Should().BeFalse();
 
-        state.PlayManager.NextTurn();
+        state.PlayManager.NextTurn(isCurrentPlayerResigning: false);
 
         state.PlayManager.CurrentTurnPlayerIndex.Should().Be(0);
         state.PlayManager.RoundIndex.Should().Be(1);
-        state.PlayManager.IsRoundComplete.Should().BeTrue();
+        state.PlayManager.IsNewRound.Should().BeTrue();
     }
 
     [Fact]
@@ -119,18 +119,18 @@ public class TicTacToeStateTests {
         
         state.PlayManager.NumberOfActivePlayers.Should().Be(3);
         
-        state.PlayManager.NextTurn();
+        state.PlayManager.NextTurn(isCurrentPlayerResigning: false);
         state.PlayManager.CurrentTurnPlayerIndex.Should().Be(1);
-        state.PlayManager.IsRoundComplete.Should().BeFalse();
+        state.PlayManager.IsNewRound.Should().BeFalse();
         
-        state.PlayManager.NextTurn();
+        state.PlayManager.NextTurn(isCurrentPlayerResigning: false);
         state.PlayManager.CurrentTurnPlayerIndex.Should().Be(2);
-        state.PlayManager.IsRoundComplete.Should().BeFalse();
+        state.PlayManager.IsNewRound.Should().BeFalse();
         
-        state.PlayManager.NextTurn();
+        state.PlayManager.NextTurn(isCurrentPlayerResigning: false);
         state.PlayManager.CurrentTurnPlayerIndex.Should().Be(0);
         state.PlayManager.RoundIndex.Should().Be(1);
-        state.PlayManager.IsRoundComplete.Should().BeTrue();
+        state.PlayManager.IsNewRound.Should().BeTrue();
     }
 
     [Fact]
@@ -142,7 +142,7 @@ public class TicTacToeStateTests {
             isSynchronousMode: false
         );
         
-        state.PlayManager.CurrentTurnPlayer.Should().Be('A');
+        state.PlayManager.CurrentTurnPlayer.AsT0.Value.Should().Be('A');
         state.PlayManager.CurrentTurnPlayerIndex.Should().Be(0);
     }
 
@@ -156,7 +156,7 @@ public class TicTacToeStateTests {
         );
         // TODO: This test should loop enough times to show that all outcomes are
         // possible, to the point that failing the test is statistically
-        var firstPlayer = state.PlayManager.CurrentTurnPlayer;
+        var firstPlayer = state.PlayManager.CurrentTurnPlayer.AsT0.Value;
         var expectedPlayers = new[] { 'A', 'B', 'C' };
         expectedPlayers.Contains(firstPlayer).Should().BeTrue();
     }
@@ -171,9 +171,9 @@ public class TicTacToeStateTests {
         );
         
         state.PlayManager.ResignPlayer('A');
-        state.PlayManager.CurrentTurnPlayer.Should().Be('B');
+        state.PlayManager.CurrentTurnPlayer.AsT0.Value.Should().Be('B');
         
         state.PlayManager.ResignPlayer('B');
-        state.PlayManager.CurrentTurnPlayer.Should().Be('C');
+        state.PlayManager.CurrentTurnPlayer.AsT0.Value.Should().Be('C');
     }
 }

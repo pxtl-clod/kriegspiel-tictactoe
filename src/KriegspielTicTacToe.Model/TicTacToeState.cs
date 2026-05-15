@@ -14,6 +14,7 @@ public record TicTacToeState {
     public TicTacToeState() { 
         Boards = [];
         PlayManager = new PlayManager();
+        ActionBuffer = [];
     }
 
     /// <summary>
@@ -34,18 +35,19 @@ public record TicTacToeState {
             IsSynchronousMode = isSynchronousMode
         };
         Boards = boardBuilders.Select(b => new Board(b)).ToList();
+        ActionBuffer = [];
     }
     #endregion
 
     #region main data properties
     public PlayManager PlayManager {get;init;}
     public IReadOnlyList<Board> Boards {get;init;}
-
+    public List<PlayAction> ActionBuffer {get;private set;}
     #endregion
 
     #region methods   
-    public Board GetBoardByCode(int boardCode)
-        => Boards[boardCode-1];
+    public Board GetBoardByCode(int boardCode) => Boards[boardCode - 1];
+    public Board GetBoardByIndex(int boardIndex) => Boards[boardIndex];
 
     public OneOf<NotFound, BoardIsDone, Result<int>> SelectBoard(int boardCode)
         => (boardCode <= 0 || boardCode > Boards.Count)
@@ -55,13 +57,17 @@ public record TicTacToeState {
             : new Result<int>(boardCode - 1);
 
     /// <summary>
-    /// Play a space by its space code.
+    /// Play a space by its space code.  Returns appropriate OneOf result.
     /// </summary>
-    public OneOf<Success, Result<char>, AlreadyPlayed, NotFound> PlaySpace(int boardIndex, int spaceCode) {
-        var board = Boards[boardIndex];
+    public OneOf<ActionQueuedSuccessfully, Result<char>, AlreadyPlayed, NotFound> PlaySpace(
+        int boardIndex,
+        int spaceCode,
+        char player
+    ) {
+        var board = GetBoardByIndex(boardIndex);
         if (board.TryGetCoordinatesFromSpaceIndexCode(spaceCode, out var col, out var row)) {
-            return PlaySpace(boardIndex, col, row)
-                .Match<OneOf<Success, Result<char>, AlreadyPlayed, NotFound>>( //have to provide return-type when going from OneOf to OneOf
+            return PlaySpace(boardIndex, col, row, player)
+                .Match<OneOf<ActionQueuedSuccessfully, Result<char>, AlreadyPlayed, NotFound>>( //have to provide return-type when going from OneOf to OneOf
                     success => success,
                     result => result,
                     alreadyPlayed => alreadyPlayed
@@ -72,24 +78,77 @@ public record TicTacToeState {
     }
     
     /// <summary>
-    /// Play a space by its coordinates.
+    /// Play a space by its coordinates.  Adds action to buffer if successful.
     /// </summary>
-    public OneOf<Success, Result<char>, AlreadyPlayed> PlaySpace(int boardIndex, int col, int row) {
+    public OneOf<ActionQueuedSuccessfully, Result<char>, AlreadyPlayed> PlaySpace(
+        int boardIndex,
+        int col,
+        int row,
+        char player
+    ) {
         var board = Boards[boardIndex];
         var space = board.Spaces[col, row];
-        if (space.MarkChar == PlayManager.CurrentTurnPlayer) {
+        
+        // Check if already played by this player
+        if (space.IsKnownToPlayer(player)) {
             return new AlreadyPlayed();
-        } else {
-            space.MakeKnownToPlayer(PlayManager.CurrentTurnPlayer);
-            var foundMark = space.MarkChar;
-            if (foundMark.HasValue) {
-                return new Result<char>(foundMark.Value);
-            } else {
-                space.MarkChar = PlayManager.CurrentTurnPlayer;
-                return new Success();
+        }
+        
+        // Check if someone else already there
+        if (space.MarkChar.HasValue) {
+            space.MakeKnownToPlayer(player);
+            return new Result<char>(space.MarkChar.Value);
+        }
+        
+        // Add action to buffer (don't execute immediately in sync mode)
+        ActionBuffer.Add(new PlayAction(boardIndex, col, row, player));
+        
+        return new ActionQueuedSuccessfully();
+    }
+
+    /// <summary>
+    /// Execute all pending actions in the action buffer.
+    /// Checks for collisions and places impasses where appropriate.
+    /// </summary>
+    public void ExecutePendingActions() {
+        var actions = ActionBuffer.ToList();
+        ActionBuffer.Clear();
+        
+        if (actions.Count == 0) return;
+               
+        foreach (var action in actions) {
+            var board = GetBoardByIndex(action.BoardIndex);
+            var space = board.Spaces[action.Col, action.Row];
+            
+            // Skip if board is done
+            if (board.IsDone) {
+                continue;
             }
+            
+            // Check for collision with opponent
+            if (actions.Any(otherA => 
+                otherA.BoardIndex == action.BoardIndex
+                && otherA.Row == action.Row
+                && otherA.Col == action.Col
+                && otherA.Player != action.Player)
+            ) {
+                space.MarkChar = '█';
+                foreach(var player in PlayManager.Players) {
+                    space.MakeKnownToPlayer(player);    
+                }
+                continue;
+            }
+            
+            // Execute successful play
+            space.MarkChar = action.Player;
+            space.MakeKnownToPlayer(action.Player);
         }
     }
+
+    public void CheckIsValidToSave() {
+        PlayManager.CheckIsValidToSave();
+    }
+
     #endregion
 
     #region helper properties
@@ -176,3 +235,18 @@ public struct AlreadyPlayed;
 /// Empty result struct for OneOf, used when the player tries to select a board that is done.
 /// </summary>
 public struct BoardIsDone;
+
+/// <summary>
+/// Action to be executed when playing a space.
+/// </summary>
+public record PlayAction(
+    int BoardIndex,
+    int Col,
+    int Row,
+    char Player
+);
+
+/// <summary>
+/// Empty result struct for OneOf indicating success.
+/// </summary>
+public struct ActionQueuedSuccessfully;

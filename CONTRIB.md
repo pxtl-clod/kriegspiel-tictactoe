@@ -11,7 +11,7 @@ This document captures the coding style patterns used in this project.
 
 - **Global usings**: Use `global using` directives at the file top for common namespaces (`System`, `System.Linq`, `System.Collections.Generic`, `System.IO`, etc.). See `.NETCoreApp,Version=v10.0.AssemblyAttributes.cs`.
 - **File-level usings**: Place `using` directives after the namespace declaration, before class definitions.
-- **OneOf types**: Use the `OneOf` library for result types (`Success`, `NotFound`, `AlreadyPlayed`, `BoardIsDone`).
+- **OneOf types**: Use the `OneOf` library for result types (`ActionQueuedSuccessfully`, `NotFound`, `AlreadyPlayed`, `BoardIsDone`).
 
 ## Indentation
 
@@ -275,7 +275,7 @@ This document captures the coding style patterns used in this project.
 - Return type of methods that may fail should use `OneOf` types:
 
     ```csharp
-    public OneOf<Success, Result<char>, AlreadyPlayed> PlaySpace(...) {
+    public OneOf<ActionQueuedSuccessfully, Result<char>, AlreadyPlayed> PlaySpace(...) {
         ...
     }
     ```

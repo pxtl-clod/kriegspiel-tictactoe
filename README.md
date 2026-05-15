@@ -107,7 +107,7 @@ See [Synchronous Mode Usage](doc/sync-mode-usage.md)
 
 # Contributing
 
-I haven't thought that far ahead.
+See [CONTRIB.md](CONTRIB.md)
 
 # Bugs
 

@@ -147,7 +147,7 @@ public record Board {
             
             //create dummy scope to hide comparator var
             {
-                //todo: support non-square Spacess, deduplicate.
+                //todo: support non-square Spaces, deduplicate.
                 //identity diagonal
                 var comparator = Spaces[0,0].MarkChar;
                 if(comparator.HasValue) {

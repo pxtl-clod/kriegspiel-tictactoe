@@ -39,7 +39,7 @@ public class TicTacToeStateTests {
     }
 
     [Fact]
-    public void NextTurn_AdvancesTurn() {
+    public void EndTurn_AdvancesTurn() {
         var state = new TicTacToeState(
             ['X', 'O'],
             [new BoardBuilder(3, 3)],
@@ -47,7 +47,7 @@ public class TicTacToeStateTests {
             isSynchronousMode: false
         );
         
-        state.PlayManager.NextTurn(isCurrentPlayerResigning: false);
+        state.PlayManager.EndTurn(isCurrentPlayerResigning: false, out bool _);
         state.PlayManager.CurrentTurnPlayerIndex.Should().Be(1);
         state.PlayManager.CurrentTurnPlayer.AsT0.Value.Should().Be('O');
     }
@@ -77,10 +77,10 @@ public class TicTacToeStateTests {
         state.PlayManager.NumberOfActivePlayers.Should().Be(2);
         state.PlayManager.IsNewRound.Should().BeFalse();
         
-        state.PlayManager.NextTurn(isCurrentPlayerResigning: false);
+        state.PlayManager.EndTurn(isCurrentPlayerResigning: false, out bool _);
         state.PlayManager.RoundIndex.Should().Be(0);
 
-        state.PlayManager.NextTurn(isCurrentPlayerResigning: false);
+        state.PlayManager.EndTurn(isCurrentPlayerResigning: false, out bool _);
         state.PlayManager.RoundIndex.Should().Be(1);
         state.PlayManager.IsNewRound.Should().BeTrue();
     }
@@ -94,14 +94,14 @@ public class TicTacToeStateTests {
             isSynchronousMode: false
         );
         state.PlayManager.ResignPlayer('X');
-        state.PlayManager.NextTurn(isCurrentPlayerResigning: true);
+        state.PlayManager.EndTurn(isCurrentPlayerResigning: true, out bool _);
         
         state.PlayManager.NumberOfActivePlayers.Should().Be(1);
         state.PlayManager.CurrentTurnPlayerIndex.Should().Be(0);
         state.PlayManager.RoundIndex.Should().Be(0);
         state.PlayManager.IsNewRound.Should().BeFalse();
 
-        state.PlayManager.NextTurn(isCurrentPlayerResigning: false);
+        state.PlayManager.EndTurn(isCurrentPlayerResigning: false, out bool _);
 
         state.PlayManager.CurrentTurnPlayerIndex.Should().Be(0);
         state.PlayManager.RoundIndex.Should().Be(1);
@@ -119,15 +119,15 @@ public class TicTacToeStateTests {
         
         state.PlayManager.NumberOfActivePlayers.Should().Be(3);
         
-        state.PlayManager.NextTurn(isCurrentPlayerResigning: false);
+        state.PlayManager.EndTurn(isCurrentPlayerResigning: false, out bool _);
         state.PlayManager.CurrentTurnPlayerIndex.Should().Be(1);
         state.PlayManager.IsNewRound.Should().BeFalse();
         
-        state.PlayManager.NextTurn(isCurrentPlayerResigning: false);
+        state.PlayManager.EndTurn(isCurrentPlayerResigning: false, out bool _);
         state.PlayManager.CurrentTurnPlayerIndex.Should().Be(2);
         state.PlayManager.IsNewRound.Should().BeFalse();
         
-        state.PlayManager.NextTurn(isCurrentPlayerResigning: false);
+        state.PlayManager.EndTurn(isCurrentPlayerResigning: false, out bool _);
         state.PlayManager.CurrentTurnPlayerIndex.Should().Be(0);
         state.PlayManager.RoundIndex.Should().Be(1);
         state.PlayManager.IsNewRound.Should().BeTrue();

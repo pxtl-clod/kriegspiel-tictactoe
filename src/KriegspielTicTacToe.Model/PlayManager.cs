@@ -1,31 +1,21 @@
+namespace KriegspielTicTacToe.Model;
+
 using OneOf;
 using OneOf.Types;
 
-namespace KriegspielTicTacToe.Model;
-
-public class PlayManager
+/// <summary>
+/// Base class containing shared play management logic for retirement and turn tracking.
+/// </summary>
+public abstract class PlayManager
 {
     #region members
     public IReadOnlyList<char> Players {get;init;} = new List<char>();
 
-    private int _currentTurnPlayerIndex = 0;
+    public int RoundIndex {get;set;}
 
-    /// <summary>
-    /// index within list of *active* players - does not include resigned players.
-    /// </summary>
-    public int CurrentTurnPlayerIndex {get; private set;}
-
-    private int _roundIndex = 0;
-    public int RoundIndex {
-        get { return _roundIndex; }
-        set { _roundIndex = value; }
-    }
-
-    public bool IsNewRound { get; private set;}
-
-    public bool IsSynchronousMode {get; init;} = false;
+    public HashSet<char> ResignedPlayersSet {get; init;} = new HashSet<char>();
     
-    public HashSet<char> ResignedPlayersSet {get;init;} = new HashSet<char>();
+    public HashSet<char> PlayedPlayersSet {get; init;} = new HashSet<char>();
     #endregion
 
     #region methods
@@ -39,17 +29,22 @@ public class PlayManager
     /// there are 2 "index 0" turns, so we can't use "index 0" as new round in
     /// that case.
     /// </remarks>
-    public void NextTurn(bool isCurrentPlayerResigning) {
-        if (!isCurrentPlayerResigning) {
-            CurrentTurnPlayerIndex += 1;
+    public void EndTurn(char currentPlayer, out bool hasStateChanged) {
+        MarkPlayerPlayed(currentPlayer);
+        EndedTurn(out hasStateChanged);
+    }
+
+    public void MarkPlayerPlayed(char player) {
+        if (PlayedPlayersSet.Contains(player)) {
+            throw new InvalidOperationException($"Player {player} has already played");
         }
-        if (IsCurrentTurnPlayerIndexOutOfRange) {
-            RoundIndex += 1;
-            CurrentTurnPlayerIndex = 0;
-            IsNewRound = true;
-        } else {
-            IsNewRound = false;
-        }
+        PlayedPlayersSet.Add(player);
+    }
+
+    public void EndRound(out bool hasStateChanged) {
+        RoundIndex += 1;
+        PlayedPlayersSet.Clear();
+        EndedRound(out hasStateChanged);
     }
     
     /// <summary>
@@ -70,19 +65,12 @@ public class PlayManager
     /// True if the given player is able to take a turn.
     /// </summary>
     public bool CanTakeTurn(char? player)
-        => CurrentTurnPlayer.Match(
-            result => result.Value == player,
-            currentTurnPlayerIndexOutOfRange => false
-        );
+        => player.HasValue
+            ? PlayersAvailableForTurn.Contains(player.Value)
+            : false;
 
-    internal void CheckIsValidToSave()
-    {
-        if (IsCurrentTurnPlayerIndexOutOfRange) {
-            throw new InvalidOperationException(
-                "Cannot save when current turn index player is out of range."
-            );
-        }
-    }
+    protected abstract void EndedTurn(out bool hasStateChanged);
+    protected abstract void EndedRound(out bool hasStateChanged);
     #endregion
 
     #region helper properties
@@ -97,30 +85,23 @@ public class PlayManager
     public IEnumerable<char> ActivePlayers
         => Players.Except(ResignedPlayersSet);
 
-    /// <summary>
-    /// Get the mark-char of the current-turn player.
-    /// </summary>
     [JsonIgnore()]
-    public OneOf<Result<char>, CurrentTurnPlayerIndexOutOfRange> CurrentTurnPlayer 
-        => IsCurrentTurnPlayerIndexOutOfRange
-        ? new CurrentTurnPlayerIndexOutOfRange()
-        : new Result<char>(ActivePlayers.ElementAt(CurrentTurnPlayerIndex));
-
-    /// <summary>
-    /// This can happen momentarily if the final player resigns.
-    /// </summary>
-    public bool IsCurrentTurnPlayerIndexOutOfRange
-        => CurrentTurnPlayerIndex >= ActivePlayers.Count();
+    public abstract IEnumerable<char> PlayersAvailableForTurn {get;}
 
     [JsonIgnore()]
-    public string GameStateText
-        =>  $"Player '{CurrentTurnPlayer}' turn.";
+    public bool IsRoundOver
+        => PlayersAvailableForTurn.Count() == 0;
 
-
+    /// <summary>
+    /// Abstract GameStateText property - implemented by subclasses.
+    /// </summary>
+    [JsonIgnore()]
+    public abstract string GameStateText {get;}
+    /// <summary>
+    /// The action buffer.  Is set by parent's Init, but Init is
+    /// post-constructor so must be nullable.
+    /// </summary>
+    [JsonIgnore()]
+    public PlayActionBuffer? PlayActionBuffer { get; internal set; }
     #endregion
 }
-
-/// <summary>
-/// Empty struct for OneOf indicating that the current player has retired.
-/// </summary>
-public record CurrentTurnPlayerIndexOutOfRange;

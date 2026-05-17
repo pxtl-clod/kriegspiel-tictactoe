@@ -1,6 +1,7 @@
 namespace KriegspielTicTacToe;
 
 using System.CommandLine;
+using OneOf;
 
 /// <summary>
 /// Application entry point.
@@ -31,6 +32,9 @@ class Program {
 
                 var boardBuilders = new Model.BoardBuilder[boardsNumber!.Value];
                 var playerChars = players.Select(p => p[0]).ToArray();
+                var joinAsPlayerUnion = joinAsPlayer == null
+                    ? OneOf<char, LocalHotseatGame>.FromT1(new LocalHotseatGame())
+                    : OneOf<char, LocalHotseatGame>.FromT0(joinAsPlayer[0]);
 
                 for(var i = 0; i < boardsNumber!; i+=1) {
                     boardBuilders[i] = new Model.BoardBuilder(size!.Value, size!.Value);
@@ -40,7 +44,7 @@ class Program {
                     doForceNewGame,
                     playerChars,
                     boardBuilders,
-                    (joinAsPlayer ?? "").Cast<char?>().SingleOrDefault(),
+                    joinAsPlayerUnion,
                     isRandomPlayerOrder: isRandomPlayer,
                     isSynchronousMode: isSynchronousMode
                 );

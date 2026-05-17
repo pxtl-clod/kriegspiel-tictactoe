@@ -13,8 +13,7 @@ public record TicTacToeState {
     /// </summary>
     public TicTacToeState() { 
         Boards = [];
-        PlayManager = new PlayManager();
-        ActionBuffer = [];
+        PlayManager = new RoundRobinPlayManager([]);
     }
 
     /// <summary>
@@ -29,20 +28,26 @@ public record TicTacToeState {
         if(isRandomPlayerOrder) { 
             Random.Shared.Shuffle(players); 
         }
-        PlayManager = new PlayManager
-        {
-            Players = players.ToList(),
-            IsSynchronousMode = isSynchronousMode
-        };
+        PlayManager = (isSynchronousMode)
+            ? new SynchronizedPlayManager(players.ToList())
+            : new RoundRobinPlayManager(players.ToList());
         Boards = boardBuilders.Select(b => new Board(b)).ToList();
-        ActionBuffer = [];
+        Initialize();
     }
     #endregion
+
+    /// <summary>
+    /// Post-constructor initialize needed to wire it back up after 
+    /// </summary>
+    public void Initialize() {
+        PlayManager.PlayActionBuffer = PlayActionBuffer;
+        PlayActionBuffer.GameState = this;
+    }
 
     #region main data properties
     public PlayManager PlayManager {get;init;}
     public IReadOnlyList<Board> Boards {get;init;}
-    public List<PlayAction> ActionBuffer {get;private set;}
+    public PlayActionBuffer PlayActionBuffer {get;init;} = new PlayActionBuffer();
     #endregion
 
     #region methods   
@@ -101,52 +106,9 @@ public record TicTacToeState {
         }
         
         // Add action to buffer (don't execute immediately in sync mode)
-        ActionBuffer.Add(new PlayAction(boardIndex, col, row, player));
+        PlayActionBuffer.Add(new TicTacToePlayAction(boardIndex, col, row, player));
         
         return new ActionQueuedSuccessfully();
-    }
-
-    /// <summary>
-    /// Execute all pending actions in the action buffer.
-    /// Checks for collisions and places impasses where appropriate.
-    /// </summary>
-    public void ExecutePendingActions() {
-        var actions = ActionBuffer.ToList();
-        ActionBuffer.Clear();
-        
-        if (actions.Count == 0) return;
-               
-        foreach (var action in actions) {
-            var board = GetBoardByIndex(action.BoardIndex);
-            var space = board.Spaces[action.Col, action.Row];
-            
-            // Skip if board is done
-            if (board.IsDone) {
-                continue;
-            }
-            
-            // Check for collision with opponent
-            if (actions.Any(otherA => 
-                otherA.BoardIndex == action.BoardIndex
-                && otherA.Row == action.Row
-                && otherA.Col == action.Col
-                && otherA.Player != action.Player)
-            ) {
-                space.MarkChar = '█';
-                foreach(var player in PlayManager.Players) {
-                    space.MakeKnownToPlayer(player);    
-                }
-                continue;
-            }
-            
-            // Execute successful play
-            space.MarkChar = action.Player;
-            space.MakeKnownToPlayer(action.Player);
-        }
-    }
-
-    public void CheckIsValidToSave() {
-        PlayManager.CheckIsValidToSave();
     }
 
     #endregion
@@ -235,16 +197,6 @@ public struct AlreadyPlayed;
 /// Empty result struct for OneOf, used when the player tries to select a board that is done.
 /// </summary>
 public struct BoardIsDone;
-
-/// <summary>
-/// Action to be executed when playing a space.
-/// </summary>
-public record PlayAction(
-    int BoardIndex,
-    int Col,
-    int Row,
-    char Player
-);
 
 /// <summary>
 /// Empty result struct for OneOf indicating success.

@@ -5,11 +5,12 @@ namespace KriegspielTicTacToe.Model;
 /// </summary>
 public record Space {
     /// <summary>
-    /// The current state of the space - NULL means available.
+    /// The current state of the space - null means available.
     /// '█' means it's an impasse (two players contested this space in same round).
     /// </summary>
     public char? MarkChar {get;set;}
-    private HashSet<char> _knownToPlayersSet {get;set;} = new HashSet<char>();
+    
+    private HashSet<char> _knownToPlayersSet {get;set;} = [];
     public IReadOnlySet<char> KnownToPlayersSet => _knownToPlayersSet;
     
     /// <summary>

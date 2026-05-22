@@ -1,7 +1,6 @@
-namespace KriegspielTicTacToe.Model;
-
 using OneOf;
-using OneOf.Types;
+
+namespace KriegspielTicTacToe.Model;
 
 public record TicTacToeState {
     public TicTacToeState() { 
@@ -18,10 +17,28 @@ public record TicTacToeState {
         if(isRandomPlayerOrder) { 
             Random.Shared.Shuffle(players); 
         }
-        var playerList = players.Select(c => new Player(c.ToString())).ToList();
+        var playerList = players.Select(c => c).ToList();
         PlayManager = (isSynchronousMode)
             ? new SynchronizedPlayManager(playerList)
             : new RoundRobinPlayManager(playerList);
+        Boards = boardBuilders.Select(b => new Board(b)).ToList();
+        Initialize();
+    }
+
+    public TicTacToeState(
+        Player[] players,
+        IEnumerable<BoardBuilder> boardBuilders,
+        bool isRandomPlayerOrder,
+        bool isSynchronousMode
+    ) {
+        if(isRandomPlayerOrder) { 
+            var shuffled = players.ToList();
+            Random.Shared.Shuffle(shuffled);
+            players = shuffled.ToArray(); 
+        }
+        PlayManager = (isSynchronousMode)
+            ? new SynchronizedPlayManager(players)
+            : new RoundRobinPlayManager(players);
         Boards = boardBuilders.Select(b => new Board(b)).ToList();
         Initialize();
     }
@@ -56,11 +73,12 @@ public record TicTacToeState {
         var board = Boards[boardIndex];
         if (board.TryGetCoordinatesFromSpaceIndexCode(spaceCode, out var col, out var row)) {
             var space = board.Spaces[col, row];
-            return ExecutePlay(boardIndex, space, player).Match(
+            var result = ExecutePlay(boardIndex, space, player).Match(
                 success => new NotFound(),
                 result => new NotFound(),
                 alreadyPlayed => new NotFound()
             );
+            return result;
         }
         return new NotFound();
     }
@@ -70,7 +88,7 @@ public record TicTacToeState {
         Space space,
         Player player
     ) {
-        if (space.IsKnownToPlayer(player.Value)) {
+        if (space.IsKnownToPlayer(player)) {
             return new AlreadyPlayed();
         }
         if (space.MarkChar.HasValue) {

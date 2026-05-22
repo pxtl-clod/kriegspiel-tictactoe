@@ -7,5 +7,5 @@ public record TicTacToePlayAction(
     Player Player
 )
 {
-    public Player Value => Player;
+    public char Value => Player.Value;
 }

@@ -1,12 +1,26 @@
 namespace KriegspielTicTacToe.Model;
 
-public record Player(string Value)
-{
-    public static Player FromChar(char value) => new(value.ToString());
+/// <summary>
+/// Represents a player in the game. Stores their marker character.
+/// </summary>
+public record Player(char Value) {
+    /// <summary>
+    /// Create a Player from a string.
+    /// </summary>
+    public static Player FromString(string value) => new(value[0]);
     
-    public static implicit operator Player(char value) => new(value.ToString());
+    /// <summary>
+    /// Implicit conversion from string to Player.
+    /// </summary>
+    public static implicit operator Player(string value) => new(value[0]);
     
-    public static implicit operator char(Player player) => player.Value[0];
+    /// <summary>
+    /// Implicit conversion from char to Player.
+    /// </summary>
+    public static implicit operator Player(char value) => new(value);
     
-    public static implicit operator string(Player player) => player.Value;
+    /// <summary>
+    /// Implicit conversion from Player to char.
+    /// </summary>
+    public static implicit operator char(Player value) => value.Value;
 }

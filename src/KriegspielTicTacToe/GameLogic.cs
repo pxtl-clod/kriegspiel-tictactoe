@@ -24,7 +24,7 @@ internal static class GameLogic {
             Console.Out.WriteLine($"Loaded saved game!");
         } else {
             // Convert char[] to Player[]
-            var playerList = new List<Player>(players.Select(c => new Player(c.ToString())));
+            var playerList = new List<Player>(players.Select(c => new Player(c)));
             state = new TicTacToeState(playerList.ToArray(), boardBuilders, 
                 isRandomPlayerOrder: isRandomPlayerOrder,
                 isSynchronousMode: isSynchronousMode
@@ -44,7 +44,7 @@ internal static class GameLogic {
         while (!isGameOver) {
             var currentPlayerChosen = joinAsPlayer.Match(
                 playerChar => {
-                    var currentPlayer = new Player(playerChar.ToString());
+                    var currentPlayer = playerChar;
                     if (!state.PlayManager.Players.Contains(currentPlayer)) {
                         throw new ApplicationException($"Invalid player join, player {currentPlayer} is not a player in this game.");
                     }
@@ -74,7 +74,7 @@ internal static class GameLogic {
             currentPlayerChosen.Switch(
                 playerResult => {
                     var currentPlayerChar = playerResult.Value;
-                    var currentPlayer = new Player(currentPlayerChar);
+                    var currentPlayer = currentPlayerChar;
                     var currentPlayerIsDoneTurn = DoPlayerTurnLoop(state, currentPlayer, sharedStateFilePath.FullName);
 
                     if (currentPlayerIsDoneTurn) {

@@ -1,9 +1,9 @@
 namespace KriegspielTicTacToe;
 
+using System.Text.RegularExpressions;
 using KriegspielTicTacToe.Model;
 using OneOf;
 using OneOf.Types;
-using System.IO;
 
 /// <summary>
 /// Game logic implementation.
@@ -117,7 +117,7 @@ internal static class GameLogic {
                 gameIsOver => {
                     isGameOver = true;
                 }
-            );                         
+            );                    
         }
         
         Console.Out.WriteLine("Game over.");
@@ -211,7 +211,14 @@ internal static class GameLogic {
     }
 
     internal static OneOf<Result<Player>, GameIsOver> DoPlayerChooserLoop(PlayManager playManager) {
-        while(true) {
+        Dictionary<Player, string> playerToKey = BuildPlayerToKeyMap(playManager.PlayersAvailableForTurn);
+        var keyToPlayer = playerToKey
+            .ToDictionary(
+                pair => pair.Value,
+                pair => pair.Key,
+                StringComparer.OrdinalIgnoreCase);
+
+        while (true) {
             if (playManager.PlayersAvailableForTurn.Count() == 1) {
                 var currentPlayer = playManager.PlayersAvailableForTurn.Single();
                 Console.Out.WriteLine($"Player {currentPlayer} ready? Press any key to continue...");
@@ -219,41 +226,95 @@ internal static class GameLogic {
                 Console.WriteLine();
                 return new Result<Player>(currentPlayer);
             }
-            if (playManager.PlayersAvailableForTurn.Count() == 0) {
+            if (!playManager.PlayersAvailableForTurn.Any()) {
                 throw new InvalidOperationException("No players are available to take a turn.");
             }
 
-            Console.Out.WriteLine($"Player(s) { string.Join(" and ", playManager.PlayersAvailableForTurn) } have not taken their turn.");
-            Console.Out.WriteLine("Who will take the next turn? Press the player's character key to take their turn.");
-            var key = Console.ReadKey();
+            // Display all available players with alternate key hints for non-typeable marks
+            var playerDisplayList = playManager.PlayersAvailableForTurn
+                .Select(p =>
+                {
+                    var altKey = playerToKey[p];
+                    var keyDisplay = altKey.Equals(p.Mark, StringComparison.OrdinalIgnoreCase)
+                        ? ""
+                        : $" ({altKey})";
+                    return $"Player {p.Mark}{keyDisplay}";
+                });
+            Console.Out.WriteLine($"Player(s) {string.Join(" and ", playerDisplayList)} have not taken their turn.");
+            Console.Out.WriteLine("Who will take the next turn? Press the player's key to take their turn.");
 
-            // have to convert to character value for comparison.
+            var keyRead = Console.ReadKey();
+
             // Handle Escape key to quit the game
-            if (key.Key == ConsoleKey.Escape) {
+            if (keyRead.Key == ConsoleKey.Escape)
+            {
                 Console.Out.WriteLine("Quitting.");
                 return new GameIsOver();
             }
-            var keyStr = key.KeyChar.ToString();
-            if (string.IsNullOrEmpty(keyStr)) {
-                // Key was not a character (e.g., F1-F12, Arrow keys, etc.)
-                Console.Out.WriteLine("Please enter a character to select a player.");
+
+            var keyStr = keyRead.KeyChar.ToString();
+
+            if (!keyToPlayer.TryGetValue(keyStr, out var selectedPlayer)) {   
+                // No player matched - inform user
+                Console.Out.WriteLine($"No player found for '{keyStr}'. Please try again.");
                 continue;
-            }
-
-            var player = playManager
-                .PlayersAvailableForTurn
-                .SingleOrDefault(p => p.Mark.Equals(keyStr, StringComparison.OrdinalIgnoreCase));
-
-            if (player != null) {
-                // write blank line
+            } else {
                 Console.Out.WriteLine();
-                return new Result<Player>(player);
-
+                return new Result<Player>(selectedPlayer);
             }
-            
-            // No player matched - inform user
-            Console.Out.WriteLine($"No player found for '{keyStr}'. Please try again.");
         }
+    }
+
+    public static Dictionary<Player, string> BuildPlayerToKeyMap(IEnumerable<Player> availablePlayers) {
+        // Build alternate key mapping for ALL players before entering loop
+        // Keys are uppercase only (A-Z, 0-9)
+        var usedKeys = availablePlayers
+            .Select(p => p.Mark)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        var playerToKey = new Dictionary<Player, string>();
+
+        foreach (var player in availablePlayers) {
+            // Check if mark is typeable (ASCII letter or digit)
+            bool isTypeable = (player.Mark.Length == 1)
+                && Regex.IsMatch(player.Mark, "[a-zA-Z0-9]");
+
+            if (isTypeable)  {
+                // Typeable mark - use the mark itself
+                playerToKey[player] = player.Mark;
+            } else {
+                // Non-typeable mark (emoji, Snowman, etc.) - assign alternate key
+
+                // Try digits first (1-9)
+                // Stop if we've exhausted digits (after '9').
+                // Start at 1 because "0" looks too much like "O"
+                for (int numKeyIndex = 1; numKeyIndex < 10; numKeyIndex += 1) {
+                    string digitKey = ((char)('0' + numKeyIndex)).ToString();
+                    if (usedKeys.Contains(digitKey)) {
+                        continue;
+                    } else {
+                        playerToKey[player] = digitKey;
+                        usedKeys.Add(digitKey);
+                        break;
+                    }
+                }
+
+                // If needed, use letters (A-Z)
+                // stop at 26 since then we've exhausted letters.
+                for (int letterKeyIndex = 0; letterKeyIndex < 26; letterKeyIndex += 1) {
+                    string letterKey = ((char)('A' + letterKeyIndex)).ToString();
+                    if (usedKeys.Contains(letterKey)) {
+                        continue;
+                    } else {
+                        playerToKey[player] = letterKey;
+                        usedKeys.Add(letterKey);
+                        break;
+                    }
+                }
+            }
+        }
+
+        return playerToKey;
     }
 }
 

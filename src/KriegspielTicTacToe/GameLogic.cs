@@ -116,7 +116,7 @@ internal static class GameLogic {
                 gameIsOver => {
                     isGameOver = true;
                 }
-            );                    
+            );                        
         }
         
         Console.Out.WriteLine("Game over.");
@@ -137,8 +137,7 @@ internal static class GameLogic {
                 BoardRenderer.DrawBoards(state, currentPlayer, activeBoardIndex);
                 var boardCommand = InputUtility.ReadCommandKeys("Press numeric key(s) to pick a board, or 'r' to resign.", 1);
                 boardCommand.Switch(
-                    charCode =>
-                    {
+                    charCode => {
                         currentPlayerIsDoneTurn = true;
                         using (var stateStorage = new StateStorage(sharedStateFilePath)) {
                             state = stateStorage.State;
@@ -150,7 +149,7 @@ internal static class GameLogic {
                             currentPlayerIsDoneTurn = false;
                             Console.WriteLine($"That is not a valid board.  Please pick an incomplete board.");
                         },
-                        boardingIsDone => {
+                        boardIsDone => {
                             currentPlayerIsDoneTurn = false;
                             Console.WriteLine($"That board is already complete.");
                         },
@@ -169,8 +168,9 @@ internal static class GameLogic {
             // which space they wish to play.
             if (activeBoardIndex.HasValue) {
                 var boardIndex = activeBoardIndex.Value;
+                var boardCode = boardIndex + 1;
                 BoardRenderer.DrawBoards(state, currentPlayer, boardIndex);
-                var spaceCommand = InputUtility.ReadCommandKeys("Press numeric key(s) to play a space, or 'r' to resign.", state.Boards[boardIndex].SpaceIndexCodeLength);
+                var spaceCommand = InputUtility.ReadCommandKeys("Press numeric key(s) to play a space, or 'r' to resign.", state.Boards[boardIndex].SpaceNameLength);
                 var spaceString = spaceCommand;
                 spaceCommand.Switch(
                     charCode => {
@@ -181,7 +181,7 @@ internal static class GameLogic {
                         }
                     },
                     spaceNameAsInt => state.PlaySpace(boardIndex, spaceNameAsInt.ToString(), currentPlayer).Switch(
-                        (notFound) => {
+                        notFound => {
                             currentPlayerIsDoneTurn = false;
                             Console.WriteLine("Invalid space.");
                         },
@@ -189,9 +189,9 @@ internal static class GameLogic {
                             currentPlayerIsDoneTurn = true;
                             Console.WriteLine($"Played on board {spaceNameAsInt}, space {spaceString}");
                         }, 
-                        resultNewlyLearned => {
+                        newlyLearned => {
                             currentPlayerIsDoneTurn = true;
-                            Console.WriteLine($"Space already taken by player '{resultNewlyLearned.Value}'.");
+                            Console.WriteLine($"Space already taken by player '{newlyLearned.Value}'.");
                         },
                         alreadyPlayed => {
                             currentPlayerIsDoneTurn = false;
@@ -209,6 +209,7 @@ internal static class GameLogic {
     }
 
     internal static OneOf<Result<Player>, GameIsOver> DoPlayerChooserLoop(PlayManager playManager) {
+        // Use ModelToKeyUtility for clean, testable key mapping
         var playerToKey = ModelToKeyUtility.BuildPlayerToKeyMap(playManager.PlayersAvailableForTurn);
 
         var keyToPlayer = playerToKey
@@ -231,8 +232,7 @@ internal static class GameLogic {
 
             // Display all available players with alternate key hints for non-typeable marks
             var playerDisplayList = playManager.PlayersAvailableForTurn
-                .Select(p =>
-                {
+                .Select(p => {
                     var altKey = playerToKey[p];
                     var keyDisplay = altKey.Equals(p.Mark, StringComparison.OrdinalIgnoreCase)
                         ? ""
@@ -245,15 +245,15 @@ internal static class GameLogic {
             var keyRead = Console.ReadKey();
 
             // Handle Escape key to quit the game
-            if (keyRead.Key == ConsoleKey.Escape)
-            {
+            if (keyRead.Key == ConsoleKey.Escape) {
                 Console.Out.WriteLine("Quitting.");
                 return new GameIsOver();
             }
 
             var keyStr = keyRead.KeyChar.ToString();
 
-            if (!keyToPlayer.TryGetValue(keyStr, out var selectedPlayer)) {   
+            // Try to find player by alternate key first, then by primary key
+            if (!keyToPlayer.TryGetValue(keyStr, out var selectedPlayer)) {
                 // No player matched - inform user
                 Console.Out.WriteLine($"No player found for '{keyStr}'. Please try again.");
                 continue;

@@ -85,8 +85,8 @@ public static class ModelToKeyUtility {
             && state.PlayManager.CanTakeTurn(player)
             && activeBoardIndex == boardIndex
         ) {
-            return board.GetSpaceIndexCode(col, row)
-                .ToString(new string('0', board.SpaceIndexCodeLength)); //zero-pad
+            return board.GetSpaceNameAsInt(col, row)
+                .ToString(new string('0', board.SpaceNameLength)); //zero-pad
         } else {
             return foundSpace;
         }

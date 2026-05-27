@@ -26,9 +26,9 @@ public record Board {
 
     #region Methods
     /// <summary>
-    /// For the given space on the board, generate the space's index code.
+    /// For the given space on the board, generate the space's name.
     /// </summary>
-    public int GetSpaceIndexCode(int col, int row) {
+    public int GetSpaceNameAsInt(int col, int row) {
         //aims for basic 3x3, but larger if needed
         //7 8 9
         //4 5 6
@@ -44,12 +44,12 @@ public record Board {
     /// signature so that it shall return false if the given spaceindex is not
     /// on the board at all.
     /// </summary>
-    public bool TryGetCoordinatesFromSpaceIndexCode(int spaceIndex, out int resultCol, out int resultRow) {
+    public bool TryGetCoordinatesFromSpaceNameAsInt(int spaceName, out int resultCol, out int resultRow) {
         //brute-force search
         //todo: smarter algo
         for (var col = 0; col < Spaces.GetLength(0); col+=1) {
             for (var row = 0; row < Spaces.GetLength(1); row+=1) {
-                if(GetSpaceIndexCode(col, row) == spaceIndex) {
+                if(GetSpaceNameAsInt(col, row) == spaceName) {
                     resultCol = col;
                     resultRow = row;
                     return true;
@@ -89,10 +89,10 @@ public record Board {
 
     /// <summary>
     /// Get how many digits the users will have to type in to type in a
-    /// space-code.
+    /// space-name.
     /// </summary>
     [JsonIgnore()]
-    public int SpaceIndexCodeLength
+    public int SpaceNameLength
         => SpaceCount.ToString().Length;
 
     /// <summary>

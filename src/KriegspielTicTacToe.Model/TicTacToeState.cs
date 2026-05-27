@@ -54,18 +54,23 @@ public record TicTacToeState {
     public IReadOnlyList<Board> Boards {get;init;}
     public PlayActionBuffer PlayActionBuffer {get;init;} = new PlayActionBuffer();
 
-    public Board GetBoardByCode(int boardName) => Boards[boardName - 1];
+    public OneOf<NotFound, Result<int>> GetBoardIndexByName(string boardName) {
+        var boardNameAsInt = int.Parse(boardName);
+        var boardIndex = boardNameAsInt - 1;
+        return (boardIndex >= 0 && boardIndex < Boards.Count) 
+            ? new Result<int>(boardIndex)
+            : new NotFound();
+    }
+        
     public Board GetBoardByIndex(int boardIndex) => Boards[boardIndex];
 
     public OneOf<NotFound, BoardIsDone, Result<int>> SelectBoard(string boardName)
-        => SelectBoard(int.Parse(boardName));
-
-    protected OneOf<NotFound, BoardIsDone, Result<int>> SelectBoard(int boardNameAsInt)
-        => (boardNameAsInt <= 0 || boardNameAsInt > Boards.Count)
-            ? new NotFound()
-            : GetBoardByCode(boardNameAsInt).IsDone
-            ? new BoardIsDone()
-            : new Result<int>(boardNameAsInt - 1);
+        => GetBoardIndexByName(boardName).Match(
+            notFound => new NotFound(),
+            indexResult => GetBoardByIndex(indexResult.Value).IsDone
+                ? OneOf<NotFound, BoardIsDone, Result<int>>.FromT1(new BoardIsDone())
+                : new Result<int>(indexResult.Value)
+        );
 
     public OneOf<NotFound, ActionQueuedSuccessfully, Result<Player>, AlreadyPlayed> PlaySpace(
         int boardIndex,
@@ -82,7 +87,7 @@ public record TicTacToeState {
             return new NotFound();
         }
         var board = Boards[boardIndex];
-        if (board.TryGetCoordinatesFromSpaceIndexCode(spaceNameAsInt, out var col, out var row))
+        if (board.TryGetCoordinatesFromSpaceNameAsInt(spaceNameAsInt, out var col, out var row))
         {
             return PlaySpace(boardIndex, player, board, col, row);
         }

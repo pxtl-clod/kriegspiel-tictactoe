@@ -42,18 +42,18 @@ public class BoardTests {
     }
     #endregion
 
-    #region SpaceIndexCodeLength
+    #region SpaceNameLength
     [Fact]
-    public void SpaceIndexCodeLength_3x3Board_Returns1() {
+    public void SpaceNameLength_3x3Board_Returns1() {
         var board = new Board(3, 3);
-        board.SpaceIndexCodeLength.Should().Be(1);
+        board.SpaceNameLength.Should().Be(1);
     }
 
     [Fact]
-    public void SpaceIndexCodeLength_100x10Board_ReturnsCorrect() {
+    public void SpaceNameLength_100x10Board_ReturnsCorrect() {
         var board = new Board(100, 10);
         var spaceCount = board.SpaceCount;
-        board.SpaceIndexCodeLength.Should().Be((int)Math.Floor(Math.Log10(spaceCount)) + 1);
+        board.SpaceNameLength.Should().Be((int)Math.Floor(Math.Log10(spaceCount)) + 1);
     }
     #endregion
 
@@ -73,38 +73,38 @@ public class BoardTests {
     }
     #endregion
 
-    #region GetSpaceIndexCode
+    #region GetSpaceName
     [Fact]
-    public void GetSpaceIndexCode_TopicCorner_ReturnsPositive() {
+    public void GetSpaceName_TopicCorner_ReturnsPositive() {
         // top-left corner (row 0, col 2) in 3x3
         var board = new Board(3, 3);
-        var code = board.GetSpaceIndexCode(2, 0);
+        var code = board.GetSpaceNameAsInt(2, 0);
         code.Should().BeGreaterThan(0);
     }
 
     [Fact]
-    public void GetSpaceIndexCode_RightOfTopicCorner_ReturnsPositive() {
+    public void GetSpaceName_RightOfTopicCorner_ReturnsPositive() {
         // 3x3 board: (row 1, col 2)
         var board = new Board(3, 3);
-        var code = board.GetSpaceIndexCode(2, 1);
+        var code = board.GetSpaceNameAsInt(2, 1);
         code.Should().BeGreaterThan(0);
     }
     #endregion
 
-    #region TryGetCoordinatesFromSpaceIndexCode
+    #region TryGetCoordinatesFromSpaceName
     [Fact]
-    public void TryGetCoordinatesFromSpaceIndexCode_Valid() {
+    public void TryGetCoordinatesFromSpaceName_Valid() {
         var board = new Board(3, 3);
-        var ok = board.TryGetCoordinatesFromSpaceIndexCode(1, out var col, out var row);
+        var ok = board.TryGetCoordinatesFromSpaceNameAsInt(1, out var col, out var row);
         ok.Should().BeTrue();
         col.Should().BeLessThan(board.ColumnCount);
         row.Should().BeLessThan(board.RowCount);
     }
 
     [Fact]
-    public void TryGetCoordinatesFromSpaceIndexCode_Invalid() {
+    public void TryGetCoordinatesFromSpaceName_Invalid() {
         var board = new Board(3, 3);
-        var ok = board.TryGetCoordinatesFromSpaceIndexCode(99, out _, out _);
+        var ok = board.TryGetCoordinatesFromSpaceNameAsInt(99, out _, out _);
         ok.Should().BeFalse();
     }
     #endregion

@@ -242,7 +242,7 @@ internal static class GameLogic {
 
             var player = playManager
                 .PlayersAvailableForTurn
-                .SingleOrDefault(p => p.Mark == keyStr);
+                .SingleOrDefault(p => p.Mark.Equals(keyStr, StringComparison.OrdinalIgnoreCase));
 
             if (player != null) {
                 // write blank line

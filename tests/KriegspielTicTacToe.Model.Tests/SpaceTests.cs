@@ -1,8 +1,5 @@
 namespace KriegspielTicTacToe.Model.Tests;
 
-using FluentAssertions;
-using Xunit;
-
 public class SpaceTests {
     [Fact]
     public void Constructor_Default_MarkCharIsNull() {

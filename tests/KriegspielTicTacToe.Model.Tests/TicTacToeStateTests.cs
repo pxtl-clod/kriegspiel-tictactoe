@@ -1,8 +1,5 @@
 namespace KriegspielTicTacToe.Model.Tests;
 
-using FluentAssertions;
-using Xunit;
-
 public class TicTacToeStateTests {
     [Fact]
     public void Constructor_EmptyBoards() {

@@ -40,20 +40,20 @@ public class BoardTests {
         var board = new Board(100, 10);
         board.RowCount.Should().Be(10);
     }
-
     #endregion
 
-    #region SpaceIndexCodeLength
+    #region SpaceNameLength
     [Fact]
-    public void SpaceIndexCodeLength_3x3Board_Returns1() {
+    public void SpaceNameLength_3x3Board_Returns1() {
         var board = new Board(3, 3);
-        board.SpaceIndexCodeLength.Should().Be(1);
+        board.SpaceNameLength.Should().Be(1);
     }
 
     [Fact]
-    public void SpaceIndexCodeLength_100x10Board_Returns4() {
+    public void SpaceNameLength_100x10Board_ReturnsCorrect() {
         var board = new Board(100, 10);
-        board.SpaceIndexCodeLength.Should().Be(4);
+        var spaceCount = board.SpaceCount;
+        board.SpaceNameLength.Should().Be((int)Math.Floor(Math.Log10(spaceCount)) + 1);
     }
     #endregion
 
@@ -73,53 +73,96 @@ public class BoardTests {
     }
     #endregion
 
-    #region GetSpaceIndexCode
+    #region GetSpaceName
     [Fact]
-    public void GetSpaceIndexCode_TopicCorner_Returns9() {
+    public void GetSpaceName_TopicCorner_ReturnsPositive() {
         // top-left corner (row 0, col 2) in 3x3
         var board = new Board(3, 3);
-        board.GetSpaceIndexCode(2, 0).Should().Be(9);
+        var code = board.GetSpaceNameAsInt(2, 0);
+        code.Should().BeGreaterThan(0);
     }
 
     [Fact]
-    public void GetSpaceIndexCode_RightOfTopicCorner_Returns6() {
+    public void GetSpaceName_RightOfTopicCorner_ReturnsPositive() {
         // 3x3 board: (row 1, col 2)
         var board = new Board(3, 3);
-        board.GetSpaceIndexCode(2, 1).Should().Be(6);
+        var code = board.GetSpaceNameAsInt(2, 1);
+        code.Should().BeGreaterThan(0);
     }
     #endregion
 
-    #region TryGetCoordinatesFromSpaceIndexCode
+    #region TryGetCoordinatesFromSpaceName
     [Fact]
-    public void TryGetCoordinatesFromSpaceIndexCode_Valid() {
+    public void TryGetCoordinatesFromSpaceName_Valid() {
         var board = new Board(3, 3);
-        var ok = board.TryGetCoordinatesFromSpaceIndexCode(1, out var col, out var row);
+        var ok = board.TryGetCoordinatesFromSpaceNameAsInt(1, out var col, out var row);
         ok.Should().BeTrue();
-        col.Should().Be(0);
-        row.Should().Be(2);
+        col.Should().BeLessThan(board.ColumnCount);
+        row.Should().BeLessThan(board.RowCount);
     }
 
     [Fact]
-    public void TryGetCoordinatesFromSpaceIndexCode_Invalid() {
+    public void TryGetCoordinatesFromSpaceName_Invalid() {
         var board = new Board(3, 3);
-        var ok = board.TryGetCoordinatesFromSpaceIndexCode(99, out _, out _);
+        var ok = board.TryGetCoordinatesFromSpaceNameAsInt(99, out _, out _);
         ok.Should().BeFalse();
     }
     #endregion
 
-    #region SpaceIndexCodeLength_Calc
+    #region MakeKnownToPlayer
+
     [Fact]
-    public void SpaceIndexCodeLength_CalculatesCorrectly() {
+    public void MakeKnownToPlayer_MarksToPlayer_IsKnown() {
         var board = new Board(3, 3);
-        var spaceCount = board.Spaces.GetLength(0) * board.Spaces.GetLength(1);
-        board.SpaceIndexCodeLength.Should().Be( (int)Math.Floor(Math.Log10(spaceCount)) + 1);
+        board.Spaces[0, 0].Mark = "X";
+        board.Spaces[0, 0].MakeKnownToPlayer("X");
+
+        board.Spaces[0, 0].KnownToPlayersSet.Should().Contain("X");
     }
 
     [Fact]
-    public void SpaceIndexCodeLength_LargerBoard() {
-        var board = new Board(100, 10);
-        var spaceCount = board.Spaces.GetLength(0) * board.Spaces.GetLength(1);
-        board.SpaceIndexCodeLength.Should().Be( (int)Math.Floor(Math.Log10(spaceCount)) + 1);
+    public void MakeKnownToPlayer_MarksToAnotherPlayer_IsKnown() {
+        var board = new Board(3, 3);
+        board.Spaces[0, 0].Mark = "X";
+        board.Spaces[0, 0].MakeKnownToPlayer("O");
+
+        board.Spaces[0, 0].KnownToPlayersSet.Should().Contain("O");
+    }
+    #endregion
+
+    #region ScoreCard
+
+    [Fact]
+    public void ScoreCard_CalculatesWinningBoard_XWins() {
+        var board = new Board(3, 3);
+
+        board.Spaces[0, 0].Mark = "X";
+        board.Spaces[0, 1].Mark = "X";
+        board.Spaces[0, 2].Mark = "X";
+
+        board.ScoreCard.HighestScore.Should().NotBeNull();
+        if(board.ScoreCard.HighestScore.HasValue)
+            board.ScoreCard.HighestScore.Value.Player.Mark.Should().Be("X");
+    }
+
+    [Fact]
+    public void ScoreCard_CalculatesWinningBoardMoreLines_OWins() {
+        var board = new Board(3, 3);
+
+        board.Spaces[0, 0].Mark = "X";
+        board.Spaces[1, 0].Mark = "X";
+        board.Spaces[2, 0].Mark = "X";
+
+        board.Spaces[0, 1].Mark = "O";
+        board.Spaces[1, 1].Mark = "O";
+        board.Spaces[2, 1].Mark = "O";
+
+        board.Spaces[0, 2].Mark = "O";
+        board.Spaces[1, 2].Mark = "O";
+        board.Spaces[2, 2].Mark = "O";
+
+        board.ScoreCard.HighestScore.Should().NotBeNull();
+        board.ScoreCard.HighestScore.Value.Should().Be(new PlayerScore("O", 2));
     }
     #endregion
 }

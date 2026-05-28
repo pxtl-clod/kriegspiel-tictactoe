@@ -12,7 +12,7 @@ public static class BoardRenderer {
     /// Draws the full board based on the given gamestate, from the perspective of
     /// the given player.
     /// </summary>
-    public static void DrawBoards(TicTacToeState state, char? player, int? activeBoardIndex) {
+    public static void DrawBoards(TicTacToeState state, Player player, int? activeBoardIndex) {
         bool doShowBoardCode = state.Boards.Count > 1;
         var maxRowCount = state.Boards.Max(b => b.RowCount);
 
@@ -26,13 +26,13 @@ public static class BoardRenderer {
                     //internal border
                     DrawBorderRow(state, nextDrawnBoardIndex, "├", "┼", "┤", "───", showBoardCode: false);
                 }
-                DrawBoardSpacesRow(state, nextDrawnBoardIndex, player, "|", activeBoardIndex, row);
+                DrawBoardSpacesRow(state, nextDrawnBoardIndex, player, "│", activeBoardIndex, row);
             }
             nextDrawnBoardIndex = DrawBorderRow(state, nextDrawnBoardIndex, "└", "┴", "┘", "───", showBoardCode: false);
             Console.WriteLine();
         }
-        if(state.ResignedPlayersSet.Count > 0) {
-            foreach(var resignedPlayer in state.ResignedPlayersSet) {
+        if(state.PlayManager.ResignedPlayersSet.Count > 0) {
+            foreach(var resignedPlayer in state.PlayManager.ResignedPlayersSet) {
                 Console.Out.WriteLine($" - player '{resignedPlayer}' is resigned.");   
             }
         }
@@ -91,7 +91,7 @@ public static class BoardRenderer {
     /// Returns the index of the next board to draw if it needs another row of
     /// boards.
     /// </returns>
-    private static int DrawBoardSpacesRow(TicTacToeState state, int startBoardIndex, char? player, string borderBarString, int? activeBoardIndex, int rowIndex) {
+    private static int DrawBoardSpacesRow(TicTacToeState state, int startBoardIndex, Player player, string borderBarString, int? activeBoardIndex, int rowIndex) {
         for (int boardIndex = startBoardIndex; boardIndex < state.Boards.Count; boardIndex+=1) {
             var board = state.Boards[boardIndex];
             (var cursorLeft, var cusorTop) = Console.GetCursorPosition ();
@@ -103,7 +103,9 @@ public static class BoardRenderer {
             Console.Out.Write("  ");
 
             for(var col = 0; col < board.ColumnCount; col+=1) {
-                DrawSpaceBody(GetSpaceString(state, player, boardIndex, activeBoardIndex, col, rowIndex), borderBarString);
+                DrawSpaceBody(
+                    ModelToKeyUtility.GetSpaceString(state, player, boardIndex, activeBoardIndex, col, rowIndex), 
+                    borderBarString);
             }
             Console.Out.Write(borderBarString);
         }
@@ -119,33 +121,5 @@ public static class BoardRenderer {
         body = body.PadLeft(2);
         body = body.PadRight(3);
         Console.Out.Write($"{borderBarString}{body}");
-    }
-
-    /// <summary>
-    /// For the given space, for the given player, get the textual
-    /// representation of the space.  If the game is over, all players see
-    /// everything, all marks on the board.  If not, they will only see the ones
-    /// they have created or discovered.  If the player is the
-    /// current-turn-player, then the space index codes will be displayed.
-    /// </summary>
-    private static string GetSpaceString(TicTacToeState state, char? player, int boardIndex, int? activeBoardIndex, int col, int row) {
-        player = state.IsGameOver //show for all players if the game is over.
-            ? (char?)null
-            : player;
-
-        var board = state.Boards[boardIndex];
-        var foundSpace = board.Spaces[col,row].ToString(player);
-        
-        if (
-            string.IsNullOrWhiteSpace(foundSpace) 
-            && !board.IsDone 
-            && player == state.CurrentTurnPlayer
-            && activeBoardIndex == boardIndex
-        ) {
-            return board.GetSpaceIndexCode(col, row)
-                .ToString(new string('0', board.SpaceIndexCodeLength)); //zero-pad
-        } else {
-            return foundSpace;
-        }
     }
 }

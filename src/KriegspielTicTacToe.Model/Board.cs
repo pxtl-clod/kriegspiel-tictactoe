@@ -1,8 +1,6 @@
 namespace KriegspielTicTacToe.Model;
 
-using System.Linq;
 using System.IO;
-using Newtonsoft.Json;
 using OneOf;
 
 /// <summary>
@@ -28,9 +26,9 @@ public record Board {
 
     #region Methods
     /// <summary>
-    /// For the given space on the board, generate the space's index code.
+    /// For the given space on the board, generate the space's name.
     /// </summary>
-    public int GetSpaceIndexCode(int col, int row) {
+    public int GetSpaceNameAsInt(int col, int row) {
         //aims for basic 3x3, but larger if needed
         //7 8 9
         //4 5 6
@@ -46,12 +44,12 @@ public record Board {
     /// signature so that it shall return false if the given spaceindex is not
     /// on the board at all.
     /// </summary>
-    public bool TryGetCoordinatesFromSpaceIndexCode(int spaceIndex, out int resultCol, out int resultRow) {
+    public bool TryGetCoordinatesFromSpaceNameAsInt(int spaceName, out int resultCol, out int resultRow) {
         //brute-force search
         //todo: smarter algo
         for (var col = 0; col < Spaces.GetLength(0); col+=1) {
             for (var row = 0; row < Spaces.GetLength(1); row+=1) {
-                if(GetSpaceIndexCode(col, row) == spaceIndex) {
+                if(GetSpaceNameAsInt(col, row) == spaceName) {
                     resultCol = col;
                     resultRow = row;
                     return true;
@@ -91,10 +89,10 @@ public record Board {
 
     /// <summary>
     /// Get how many digits the users will have to type in to type in a
-    /// space-code.
+    /// space-name.
     /// </summary>
     [JsonIgnore()]
-    public int SpaceIndexCodeLength
+    public int SpaceNameLength
         => SpaceCount.ToString().Length;
 
     /// <summary>
@@ -102,7 +100,7 @@ public record Board {
     /// </summary>
     [JsonIgnore()]
     public bool IsFull 
-        => BoardAsEnumerable().All(s => s.MarkChar.HasValue);
+        => BoardAsEnumerable().All(s => s.Mark != null);
 
     [JsonIgnore()]
     public bool IsDone
@@ -116,16 +114,16 @@ public record Board {
             //search for full-rows
             for(int row = 0; row < Spaces.GetLength(1); row+=1) {
                 bool isWinner = true;
-                var comparator = Spaces[0,row].MarkChar;
-                if(comparator.HasValue) {
+                string? lineOwner = Spaces[0,row].Mark;
+                if(lineOwner != null) {
                     for(int col = 1; col < Spaces.GetLength(0); col+=1) {
-                        if(comparator != Spaces[col,row].MarkChar) {
+                        if(lineOwner != Spaces[col,row].Mark) {
                             isWinner = false;
                             break;
                         }
                     }
                     if(isWinner) {
-                        result.Add(new PlayerScore(comparator.Value, 1));
+                        result.Add(new PlayerScore(new Player(lineOwner), 1));
                     }
                 }
             }
@@ -133,54 +131,54 @@ public record Board {
             //todo: deduplicate.  Rotate array and re-run?
             for(int col = 0; col < Spaces.GetLength(0); col+=1) {
                 bool isWinner = true;
-                var comparator = Spaces[col,0].MarkChar;
-                if(comparator.HasValue) {
+                string? lineOwner = Spaces[col,0].Mark;
+                if(lineOwner != null) {
                     for(int row = 1; row < Spaces.GetLength(1); row+=1) {
-                        if(comparator != Spaces[col,row].MarkChar) {
+                        if(lineOwner != Spaces[col,row].Mark) {
                             isWinner = false;
                             break;
                         }
                     }
                     if(isWinner) {
-                        result.Add(new PlayerScore(comparator.Value, 1));
+                        result.Add(new PlayerScore(new Player(lineOwner), 1));
                     }
                 }
             }
             
-            //create dummy scope to hide comparator var
+            //create dummy scope to hide lineOwner var
             {
-                //todo: support non-square Spacess, deduplicate.
+                //todo: support non-square Spaces, deduplicate.
                 //identity diagonal
-                var comparator = Spaces[0,0].MarkChar;
-                if(comparator.HasValue) {
+                string? lineOwner = Spaces[0,0].Mark;
+                if(lineOwner != null) {
                     bool isWinner = true;
                     for(int col=1; col < Spaces.GetLength(0) && col < Spaces.GetLength(1); col+=1) {
                         var row = col;
-                        if(comparator != Spaces[col,row].MarkChar) {
+                        if(lineOwner != Spaces[col,row].Mark) {
                             isWinner = false;
                             break;
                         }
                     }
                     if(isWinner) {
-                        result.Add(new PlayerScore(comparator.Value, 1));
+                        result.Add(new PlayerScore(new Player(lineOwner), 1));
                     }
                 }
             }
-            //create dummy scope to hide comparator var
+            //create dummy scope to hide lineOwner var
             {
                 //inverse diagonal
-                var comparator = Spaces[0,Spaces.GetLength(1)-1].MarkChar;
-                if(comparator.HasValue) {
+                string? lineOwner = Spaces[0,Spaces.GetLength(1)-1].Mark;
+                if(lineOwner != null) {
                     bool isWinner = true;
                     for(int col=1; col < Spaces.GetLength(0) && col < Spaces.GetLength(1); col+=1) {
                         var row = Spaces.GetLength(1) - 1 - col;
-                        if(comparator != Spaces[col,row].MarkChar) {
+                        if(lineOwner != Spaces[col,row].Mark) {
                             isWinner = false;
                             break;
                         }
                     }
                     if(isWinner) {
-                        result.Add(new PlayerScore(comparator.Value, 1));
+                        result.Add(new PlayerScore(new Player(lineOwner), 1));
                     }
                 }
             }

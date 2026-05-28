@@ -1,0 +1,6 @@
+{
+    "test": {
+        "_comment": "needed to allow .net test to work",
+        "runner": "Microsoft.Testing.Platform"
+    }
+}

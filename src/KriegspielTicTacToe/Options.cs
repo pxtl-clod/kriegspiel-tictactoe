@@ -1,6 +1,5 @@
 namespace KriegspielTicTacToe;
 
-using System;
 using System.CommandLine;
 
 /// <summary>
@@ -9,7 +8,7 @@ using System.CommandLine;
 internal static class Options {
     public static Option<FileInfo> StateFileOption = new ("--file", "-f") {
         Description = "Path to the json file where gamestate is stored.  Will be resumed automatically if you kill the game (ctrl-C).  Use a fileshare for network multiplayer.",
-        DefaultValueFactory = (ArgumentResult) => StateUtility.DefaultStateFilePath
+        DefaultValueFactory = (ArgumentResult) => StateStorage.DefaultStateFilePath
     };
 
     public static Option<bool> ForceNewGameOption = new ("--force", "-F") {
@@ -73,5 +72,9 @@ internal static class Options {
 
     public static Option<string> JoinAsPlayerOption = new ("--join", "-j") {
         Description = "Join as given player char mark. Must match a mark in players list. Hotseat mode if not provided."
+    };
+
+    public static Option<bool> SynchronousModeOption = new ("--synchronous", "-y") {
+        Description = "Moves do not execute until all players in a round have taken a turn.  If two players move to the same square, that square becomes an impasse marker visible to all."
     };
 }

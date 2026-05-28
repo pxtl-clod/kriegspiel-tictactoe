@@ -4,6 +4,7 @@
 *.suo
 *.user
 *.sln.docstates
+*.lscache
 
 # Build results
 [Dd]ebug/
@@ -16,6 +17,12 @@ x64/
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
 
+# coredump files
+core.*
 
 # publish
 # .vscode
+
+# Agent working files
+temp/
+.ralph/

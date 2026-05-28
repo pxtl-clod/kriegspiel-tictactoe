@@ -1,17 +1,19 @@
 namespace KriegspielTicTacToe.Model.Tests;
 
-public class TicTacToeStateTests {
+public class PlayManagerTests {
     [Fact]
     public void Constructor_EmptyBoards() {
         var state = new TicTacToeState(
-            new[] { 'X', 'O' },
+            new[] { new Player("X"), new Player("O") },
             Array.Empty<BoardBuilder>(),
             isRandomPlayerOrder: false,
             isSynchronousMode: false
         );
         state.Boards.Should().BeEmpty();
-        state.PlayManager.Players.Should().Contain(new Player("X")).And.Subject.Should().Contain(new Player("O"));
-        state.PlayManager.ActivePlayers.Should().Contain(new Player("X")).And.Subject.Should().Contain(new Player("O"));
+        state.PlayManager.Players.Should().Contain(new Player("X"));
+        state.PlayManager.Players.Should().Contain(new Player("O"));
+        state.PlayManager.ActivePlayers.Should().Contain(new Player("X"));
+        state.PlayManager.ActivePlayers.Should().Contain(new Player("O"));
     }
 
     [Fact]
@@ -23,8 +25,10 @@ public class TicTacToeStateTests {
             isSynchronousMode: false
         );
         state.Boards.Count.Should().Be(2);
-        state.PlayManager.Players.Should().Contain(new Player("X")).And.Subject.Should().Contain(new Player("O"));
-        state.PlayManager.ActivePlayers.Should().Contain(new Player("X")).And.Subject.Should().Contain(new Player("O"));
+        state.PlayManager.Players.Should().Contain(new Player("X"));
+        state.PlayManager.Players.Should().Contain(new Player("O"));
+        state.PlayManager.ActivePlayers.Should().Contain(new Player("X"));
+        state.PlayManager.ActivePlayers.Should().Contain(new Player("O"));
     }
 
     [Fact]
@@ -47,7 +51,7 @@ public class TicTacToeStateTests {
             isSynchronousMode: false
         );
 
-        state.PlayManager.EndTurn("X", out _);
+        state.PlayManager.EndTurn(new Player("X"), out _);
         state.PlayManager.ActivePlayers.Should().Contain(new Player("O"));
     }
 
@@ -60,9 +64,8 @@ public class TicTacToeStateTests {
             isSynchronousMode: false
         );
 
-        // X, O both take their turns
-        state.PlayManager.EndTurn("X", out _);
-        state.PlayManager.EndTurn("O", out _);
+        state.PlayManager.EndTurn(new Player("X"), out _);
+        state.PlayManager.EndTurn(new Player("O"), out _);
         state.PlayManager.IsRoundOver.Should().BeTrue();
         state.PlayManager.GameStateText.Should().Be("Round over.");
     }
@@ -76,8 +79,8 @@ public class TicTacToeStateTests {
             isSynchronousMode: false
         );
 
-        state.PlayManager.ResignPlayer("X");
-        state.PlayManager.EndTurn("O", out _);
+        state.PlayManager.ResignPlayer(new Player("X"));
+        state.PlayManager.EndTurn(new Player("O"), out _);
 
         state.PlayManager.ActivePlayers.Count().Should().Be(1);
         state.PlayManager.IsRoundOver.Should().BeTrue();
@@ -93,8 +96,8 @@ public class TicTacToeStateTests {
             isSynchronousMode: true
         );
 
-        state.PlayManager.EndTurn("A", out _);
-        state.PlayManager.EndTurn("B", out _);
+        state.PlayManager.EndTurn(new Player("A"), out _);
+        state.PlayManager.EndTurn(new Player("B"), out _);
         state.PlayManager.IsRoundOver.Should().BeTrue();
         state.PlayManager.GameStateText.Should().Be("Synchronized play.");
     }
@@ -110,15 +113,15 @@ public class TicTacToeStateTests {
 
         state.PlayManager.NumberOfActivePlayers.Should().Be(3);
 
-        state.PlayManager.EndTurn("A", out _);
-        state.PlayManager.EndTurn("B", out _);
-        state.PlayManager.EndTurn("C", out _);
+        state.PlayManager.EndTurn(new Player("A"), out _);
+        state.PlayManager.EndTurn(new Player("B"), out _);
+        state.PlayManager.EndTurn(new Player("C"), out _);
         state.PlayManager.IsRoundOver.Should().BeTrue();
         state.PlayManager.GameStateText.Should().Be("Synchronized play.");
     }
 
     [Fact]
-    public void ResignPlayer_OnlyNextPlayerCanTakeTurn() {
+    public void ResignPlayerInRoundRobinMode_OnlyNextPlayerCanTakeTurn() {
         var state = new TicTacToeState(
             [new Player("A"), new Player("B"), new Player("C")],
             [new BoardBuilder(3, 3)],
@@ -126,7 +129,7 @@ public class TicTacToeStateTests {
             isSynchronousMode: false
         );
 
-        state.PlayManager.ResignPlayer("A");
+        state.PlayManager.ResignPlayer(new Player("A"));
 
         state.PlayManager.CanTakeTurn(new Player("A")).Should().BeFalse();
         state.PlayManager.CanTakeTurn(new Player("B")).Should().BeTrue();
@@ -143,8 +146,9 @@ public class TicTacToeStateTests {
             isSynchronousMode: false
         );
 
-        state.PlayManager.ResignPlayer("A");
-        state.PlayManager.ActivePlayers.Should().Contain(new Player("B")).And.Subject.Should().Contain(new Player("C"));
+        state.PlayManager.ResignPlayer(new Player("A"));
+        state.PlayManager.ActivePlayers.Should().Contain(new Player("B"));
+        state.PlayManager.ActivePlayers.Should().Contain(new Player("C"));
     }
 
     [Fact]
@@ -156,8 +160,8 @@ public class TicTacToeStateTests {
             isSynchronousMode: false
         );
 
-        state.PlayManager.ResignPlayer("A");
-        state.PlayManager.ResignedPlayersSet.Should().Contain("A");
+        state.PlayManager.ResignPlayer(new Player("A"));
+        state.PlayManager.ResignedPlayersSet.Should().Contain(new Player("A"));
     }
 
     [Fact]
@@ -169,12 +173,12 @@ public class TicTacToeStateTests {
             isSynchronousMode: false
         );
 
-        state.PlayManager.ResignPlayer("A");
-        state.PlayManager.EndTurn("A", out _); // A was resigned, turn skipped
+        state.PlayManager.ResignPlayer(new Player("A"));
+        state.PlayManager.EndTurn(new Player("A"), out _); // A was resigned, turn skipped
 
         state.PlayManager.ActivePlayers.First().Should().Be(new Player("B"));
-        state.PlayManager.EndTurn("B", out _);
-        state.PlayManager.EndTurn("C", out _);
+        state.PlayManager.EndTurn(new Player("B"), out _);
+        state.PlayManager.EndTurn(new Player("C"), out _);
     }
 
     [Fact]
@@ -198,10 +202,9 @@ public class TicTacToeStateTests {
             isSynchronousMode: false
         );
         var firstPlayer = state.PlayManager.ActivePlayers.First();
-        var expectedPlayers = new[] { "A", "B", "C" };
+        var expectedPlayers = new[] {new Player("A"), new Player("B"), new Player("C")};
         expectedPlayers.Contains(firstPlayer).Should().BeTrue();
     }
-
 
     [Fact]
     public void CanTakeTurn_AllAvailablePlayersSynchronousMode() {
@@ -212,14 +215,14 @@ public class TicTacToeStateTests {
             isSynchronousMode: true
         );
 
-        state.PlayManager.ResignPlayer("A");
+        state.PlayManager.ResignPlayer(new Player("A"));
         
-        // A has resigned, so A should be unable to take turns
         state.PlayManager.CanTakeTurn(new Player("A")).Should().BeFalse();
         
-        // B is next to take a turn
         state.PlayManager.CanTakeTurn(new Player("B")).Should().BeTrue();
         state.PlayManager.CanTakeTurn(new Player("C")).Should().BeTrue();
+        
+        // player D does not exist.
         state.PlayManager.CanTakeTurn(new Player("D")).Should().BeFalse();
     }
 

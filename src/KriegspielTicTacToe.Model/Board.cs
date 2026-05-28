@@ -114,17 +114,16 @@ public record Board {
             //search for full-rows
             for(int row = 0; row < Spaces.GetLength(1); row+=1) {
                 bool isWinner = true;
-                string? comparator = Spaces[0,row].Mark;
-                if(comparator != null) {
+                string? lineOwner = Spaces[0,row].Mark;
+                if(lineOwner != null) {
                     for(int col = 1; col < Spaces.GetLength(0); col+=1) {
-                        if(comparator != Spaces[col,row].Mark) {
+                        if(lineOwner != Spaces[col,row].Mark) {
                             isWinner = false;
                             break;
                         }
                     }
                     if(isWinner) {
-                        var player = new Player(comparator);
-                        result.Add(new PlayerScore(player, 1));
+                        result.Add(new PlayerScore(new Player(lineOwner), 1));
                     }
                 }
             }
@@ -132,57 +131,54 @@ public record Board {
             //todo: deduplicate.  Rotate array and re-run?
             for(int col = 0; col < Spaces.GetLength(0); col+=1) {
                 bool isWinner = true;
-                string? comparator = Spaces[col,0].Mark;
-                if(comparator != null) {
+                string? lineOwner = Spaces[col,0].Mark;
+                if(lineOwner != null) {
                     for(int row = 1; row < Spaces.GetLength(1); row+=1) {
-                        if(comparator != Spaces[col,row].Mark) {
+                        if(lineOwner != Spaces[col,row].Mark) {
                             isWinner = false;
                             break;
                         }
                     }
                     if(isWinner) {
-                        var player = new Player(comparator);
-                        result.Add(new PlayerScore(player, 1));
+                        result.Add(new PlayerScore(new Player(lineOwner), 1));
                     }
                 }
             }
             
-            //create dummy scope to hide comparator var
+            //create dummy scope to hide lineOwner var
             {
                 //todo: support non-square Spaces, deduplicate.
                 //identity diagonal
-                string? comparator = Spaces[0,0].Mark;
-                if(comparator != null) {
+                string? lineOwner = Spaces[0,0].Mark;
+                if(lineOwner != null) {
                     bool isWinner = true;
                     for(int col=1; col < Spaces.GetLength(0) && col < Spaces.GetLength(1); col+=1) {
                         var row = col;
-                        if(comparator != Spaces[col,row].Mark) {
+                        if(lineOwner != Spaces[col,row].Mark) {
                             isWinner = false;
                             break;
                         }
                     }
                     if(isWinner) {
-                        var player = new Player(comparator);
-                        result.Add(new PlayerScore(player, 1));
+                        result.Add(new PlayerScore(new Player(lineOwner), 1));
                     }
                 }
             }
-            //create dummy scope to hide comparator var
+            //create dummy scope to hide lineOwner var
             {
                 //inverse diagonal
-                string? comparator = Spaces[0,Spaces.GetLength(1)-1].Mark;
-                if(comparator != null) {
+                string? lineOwner = Spaces[0,Spaces.GetLength(1)-1].Mark;
+                if(lineOwner != null) {
                     bool isWinner = true;
                     for(int col=1; col < Spaces.GetLength(0) && col < Spaces.GetLength(1); col+=1) {
                         var row = Spaces.GetLength(1) - 1 - col;
-                        if(comparator != Spaces[col,row].Mark) {
+                        if(lineOwner != Spaces[col,row].Mark) {
                             isWinner = false;
                             break;
                         }
                     }
                     if(isWinner) {
-                        var player = new Player(comparator);
-                        result.Add(new PlayerScore(player, 1));
+                        result.Add(new PlayerScore(new Player(lineOwner), 1));
                     }
                 }
             }

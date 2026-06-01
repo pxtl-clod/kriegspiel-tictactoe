@@ -80,7 +80,7 @@ internal static class GameLogic {
                         }
 
                         if (hasStateChanged) {
-                            BoardRenderer.DrawBoards(state, currentPlayer, activeBoardIndex: null);
+                            Console.Out.WriteLine(BoardRenderer.DrawBoards(state, currentPlayer, activeBoardIndex: null, cursorX: 0, maxWidth: int.MaxValue));
                         }
 
                         if (state.PlayManager.IsRoundOver) {
@@ -134,7 +134,7 @@ internal static class GameLogic {
 
             if (!activeBoardIndex.HasValue) {
                 //player picks a board.
-                BoardRenderer.DrawBoards(state, currentPlayer, activeBoardIndex);
+                BoardRenderer.DrawBoards(state, currentPlayer, activeBoardIndex, cursorX: 0, maxWidth: int.MaxValue);
                 var boardCommand = InputUtility.ReadCommandKeys("Press numeric key(s) to pick a board, or 'r' to resign.", 1);
                 boardCommand.Switch(
                     charCode => {
@@ -169,7 +169,7 @@ internal static class GameLogic {
             if (activeBoardIndex.HasValue) {
                 var boardIndex = activeBoardIndex.Value;
                 var boardCode = boardIndex + 1;
-                BoardRenderer.DrawBoards(state, currentPlayer, boardIndex);
+                Console.Out.WriteLine(BoardRenderer.DrawBoards(state, currentPlayer, boardIndex, cursorX: 0, maxWidth: int.MaxValue));
                 var spaceCommand = InputUtility.ReadCommandKeys("Press numeric key(s) to play a space, or 'r' to resign.", state.Boards[boardIndex].SpaceNameLength);
                 var spaceString = spaceCommand;
                 spaceCommand.Switch(

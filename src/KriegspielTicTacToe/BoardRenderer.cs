@@ -1,41 +1,45 @@
 namespace KriegspielTicTacToe;
 
 using KriegspielTicTacToe.Model;
+using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 
 /// <summary>
 /// Draws the full board based on the given gamestate, from the perspective of
 /// the given player.
 /// </summary>
 public static class BoardRenderer {
+    private static StringBuilder sb = new StringBuilder();
+
     /// <summary>
-    /// Draws the full board based on the given gamestate, from the perspective of
-    /// the given player.
+    /// Draws the full boards based on the state and returns a string-builder.
     /// </summary>
-    public static void DrawBoards(TicTacToeState state, Player player, int? activeBoardIndex) {
+    public static StringBuilder DrawBoards(TicTacToeState state, Player player, int? activeBoardIndex) {
         bool doShowBoardCode = state.Boards.Count > 1;
         var maxRowCount = state.Boards.Max(b => b.RowCount);
+        var sb = new StringBuilder();
 
-        var nextDrawnBoardIndex = 0; //handle too many boards to fit horizontally.
+        var nextDrawnBoardIndex = 0;
         while (nextDrawnBoardIndex < state.Boards.Count) {
-            //top row border
-            DrawBorderRow(state, nextDrawnBoardIndex, "┌", "┬", "┐", "───", doShowBoardCode);
+            DrawBorderRow(state, nextDrawnBoardIndex, "┌", "┬", "┐", "───", doShowBoardCode, sb);
             
             for(var row = 0; row < maxRowCount; row+=1) {
                 if(row > 0) {
-                    //internal border
-                    DrawBorderRow(state, nextDrawnBoardIndex, "├", "┼", "┤", "───", showBoardCode: false);
+                    DrawBorderRow(state, nextDrawnBoardIndex, "├", "┼", "┤", "───", false, sb);
                 }
-                DrawBoardSpacesRow(state, nextDrawnBoardIndex, player, "│", activeBoardIndex, row);
+                DrawBoardSpacesRow(state, nextDrawnBoardIndex, player, "│", activeBoardIndex, row, sb);
             }
-            nextDrawnBoardIndex = DrawBorderRow(state, nextDrawnBoardIndex, "└", "┴", "┘", "───", showBoardCode: false);
-            Console.WriteLine();
+            nextDrawnBoardIndex = DrawBorderRow(state, nextDrawnBoardIndex, "└", "┴", "┘", "───", false, sb);
+            sb.AppendLine();
         }
         if(state.PlayManager.ResignedPlayersSet.Count > 0) {
             foreach(var resignedPlayer in state.PlayManager.ResignedPlayersSet) {
-                Console.Out.WriteLine($" - player '{resignedPlayer}' is resigned.");   
+                sb.AppendLine($" - player '{resignedPlayer}' resigned.");
             }
         }
+
+        return sb;
     }
 
     public static int GetBoardDrawWidth(Board board) 
@@ -44,10 +48,6 @@ public static class BoardRenderer {
     /// <summary>
     /// Helper function to draw a border row of the board.
     /// </summary>
-    /// <returns>
-    /// Returns the index of the next board to draw if it needs another row of
-    /// boards.
-    /// </returns>
     private static int DrawBorderRow(
         TicTacToeState state,
         int startBoardIndex,
@@ -55,71 +55,52 @@ public static class BoardRenderer {
         string midBarString, 
         string endBarString, 
         string spanString, 
-        bool showBoardCode)
+        bool showBoardCode,
+        StringBuilder sb)
     {
         for (var boardIndex = startBoardIndex; boardIndex < state.Boards.Count; boardIndex+=1) {
             var board = state.Boards[boardIndex];
-            (var cursorLeft, var cusorTop) = Console.GetCursorPosition ();
-            if(cursorLeft > 0 && (cursorLeft + GetBoardDrawWidth(board) > Console.WindowWidth)) {
-                Console.Out.WriteLine();
-                return boardIndex;
-            }
+            
+            sb.Append(showBoardCode
+                ? (board.IsDone ? " ✓" : $" {boardIndex + 1}")
+                : "  ");
 
-            Console.Out.Write(showBoardCode
-                ? (board.IsDone
-                    ? " ✓" //board is done so just show a checkmark.
-                    : $" {boardIndex + 1}" //key-index to choose it
-                ): "  " //blank space
-            );
-
-            Console.Out.Write($"{startBarString}{spanString}");
+            sb.Append($"{startBarString}{spanString}");
             
             for(var col = 0; col < board.ColumnCount-1; col+=1) {
-                Console.Out.Write($"{midBarString}{spanString}");
+                sb.Append($"{midBarString}{spanString}");
             }
-            Console.Out.Write(endBarString);
+            sb.Append(endBarString);
         }
-        Console.Out.WriteLine();
+        sb.AppendLine();
         return state.Boards.Count;
     }
 
-    
     /// <summary>
     /// Draw a row of board spaces.
     /// </summary>
-    /// <returns>
-    /// Returns the index of the next board to draw if it needs another row of
-    /// boards.
-    /// </returns>
-    private static int DrawBoardSpacesRow(TicTacToeState state, int startBoardIndex, Player player, string borderBarString, int? activeBoardIndex, int rowIndex) {
+    private static int DrawBoardSpacesRow(TicTacToeState state, int startBoardIndex, Player player, string borderBarString, int? activeBoardIndex, int rowIndex, StringBuilder sb) {
         for (int boardIndex = startBoardIndex; boardIndex < state.Boards.Count; boardIndex+=1) {
             var board = state.Boards[boardIndex];
-            (var cursorLeft, var cusorTop) = Console.GetCursorPosition ();
-            if(cursorLeft > 0 && (cursorLeft + GetBoardDrawWidth(board) > Console.WindowWidth)) {
-                Console.Out.WriteLine();
-                return boardIndex;
-            }
 
-            Console.Out.Write("  ");
+            sb.Append("  ");
 
             for(var col = 0; col < board.ColumnCount; col+=1) {
-                DrawSpaceBody(
-                    ModelToKeyUtility.GetSpaceString(state, player, boardIndex, activeBoardIndex, col, rowIndex), 
-                    borderBarString);
+                var body = ModelToKeyUtility.GetSpaceString(state, player, boardIndex, activeBoardIndex, col, rowIndex);
+                body = body.PadLeft(2);
+                body = body.PadRight(3);
+                sb.Append($"{borderBarString}{body}");
             }
-            Console.Out.Write(borderBarString);
+            sb.Append(borderBarString);
         }
-        Console.Out.WriteLine();
-        return state.Boards.Count();
+        sb.AppendLine();
+        return state.Boards.Count;
     }
 
     /// <summary>
-    /// Helper function to draw the body-spaces of the board.
+    /// Renders the entire board as a string.
     /// </summary>
-    private static void DrawSpaceBody(string body, string borderBarString)
-    {
-        body = body.PadLeft(2);
-        body = body.PadRight(3);
-        Console.Out.Write($"{borderBarString}{body}");
+    public static string Render(TicTacToeState state, Player player, int? activeBoardIndex) {
+        return DrawBoards(state, player, activeBoardIndex).ToString();
     }
 }

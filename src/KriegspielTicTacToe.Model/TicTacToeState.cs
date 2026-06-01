@@ -102,8 +102,11 @@ public record TicTacToeState {
         int row) 
     {
         var space = board.Spaces[col, row];
-        if (space.Mark != null) {
+        if (space.IsKnownToPlayer(player)) {
             return new AlreadyPlayed();
+        } else if (space.Mark != null) {
+            space.MakeKnownToPlayer(player);
+            return new Result<Player>(space.Mark);
         } else {
             PlayActionBuffer.Add(new TicTacToePlayAction(boardIndex, col, row, player));
             return new ActionQueuedSuccessfully();
@@ -132,8 +135,19 @@ public record TicTacToeState {
     [JsonIgnore()]
     public string GameStateText
         => IsGameOver 
-        ? "Game over."
-        : PlayManager.GameStateText;
+        ? (Winner == null
+            ? "Game over. Tie game."
+            : $"Game over. {Winner} wins."
+        )
+        : (PlayManager.GameStateText 
+            + Environment.NewLine
+            + ResignedPlayersText
+        );
+
+    public string ResignedPlayersText
+        => PlayManager.ResignedPlayersSet.Count > 0
+        ? $"Resigned players: {string.Join(", ", PlayManager.ResignedPlayersSet.OrderBy(p => p.Mark))}"
+        : "";
     
     [JsonIgnore()]
     public Player? Winner {

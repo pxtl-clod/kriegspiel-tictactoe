@@ -13,6 +13,10 @@ public record Player {
         Mark = mark;
     }
     public string Mark {get; init;}
+
+    public override string ToString()
+        => Mark;
+
     /// <summary>
     /// Create a Player from a char.
     /// </summary>

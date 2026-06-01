@@ -34,8 +34,11 @@ public class PlayActionBuffer {
                 }
                 continue;
             }
+
+            if (space.Mark == null) {
+                space.Mark = action.Player.Mark;
+            }
             
-            space.Mark = action.Player.Mark;
             space.MakeKnownToPlayer(action.Player);
         }
 

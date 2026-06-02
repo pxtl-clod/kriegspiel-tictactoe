@@ -9,9 +9,13 @@ on:
 jobs:
   build-and-test:
     runs-on: ${{ matrix.os }}
+    env:
+      # Node.js 20 actions are deprecated. To opt into Node.js 24 now, set the FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        # NOTICE: "windows-latest" requests are being redirected to "windows-2025-vs2026" by June 15, 2026
+        os: [ubuntu-latest, windows-2025-vs2026]
 
     steps:
       - name: Checkout repository

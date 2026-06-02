@@ -1,53 +1,54 @@
 namespace KriegspielTicTacToe;
 
 using KriegspielTicTacToe.Model;
+using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 
 /// <summary>
 /// Draws the full board based on the given gamestate, from the perspective of
 /// the given player.
 /// </summary>
-public static class BoardRenderer {
-    /// <summary>
-    /// Draws the full board based on the given gamestate, from the perspective of
-    /// the given player.
-    /// </summary>
-    public static void DrawBoards(TicTacToeState state, Player player, int? activeBoardIndex) {
+public static class BoardRenderer
+{
+    private static StringBuilder sb = new StringBuilder();
+
+    public static string DrawBoards(
+        TicTacToeState state,
+        Player player,
+        int? activeBoardIndex,
+        int maxWidth = int.MaxValue
+    ) {
         bool doShowBoardCode = state.Boards.Count > 1;
         var maxRowCount = state.Boards.Max(b => b.RowCount);
+        var sb = new StringBuilder();
 
-        var nextDrawnBoardIndex = 0; //handle too many boards to fit horizontally.
+        var nextDrawnBoardIndex = 0;
+        var boardWidth = GetBoardWidth(state.Boards[nextDrawnBoardIndex]);
+       
         while (nextDrawnBoardIndex < state.Boards.Count) {
-            //top row border
-            DrawBorderRow(state, nextDrawnBoardIndex, "┌", "┬", "┐", "───", doShowBoardCode);
+            DrawBorderRow(state, nextDrawnBoardIndex, "┌", "┬", "┐", "───", doShowBoardCode, maxWidth, sb);
             
-            for(var row = 0; row < maxRowCount; row+=1) {
+            for(var row = 0; row < maxRowCount; row += 1) {
                 if(row > 0) {
-                    //internal border
-                    DrawBorderRow(state, nextDrawnBoardIndex, "├", "┼", "┤", "───", showBoardCode: false);
+                    DrawBorderRow(state, nextDrawnBoardIndex, "├", "┼", "┤", "───", false, maxWidth, sb);
                 }
-                DrawBoardSpacesRow(state, nextDrawnBoardIndex, player, "│", activeBoardIndex, row);
+                DrawBoardSpacesRow(state, nextDrawnBoardIndex, player, "│", activeBoardIndex, row, boardWidth, maxWidth, sb);
             }
-            nextDrawnBoardIndex = DrawBorderRow(state, nextDrawnBoardIndex, "└", "┴", "┘", "───", showBoardCode: false);
-            Console.WriteLine();
+            nextDrawnBoardIndex = DrawBorderRow(state, nextDrawnBoardIndex, "└", "┴", "┘", "───", false, maxWidth, sb);
         }
-        if(state.PlayManager.ResignedPlayersSet.Count > 0) {
-            foreach(var resignedPlayer in state.PlayManager.ResignedPlayersSet) {
-                Console.Out.WriteLine($" - player '{resignedPlayer}' is resigned.");   
-            }
-        }
+
+        sb.AppendLine();
+        return sb.ToString();
     }
 
-    public static int GetBoardDrawWidth(Board board) 
+    public static int GetBoardWidth(Board board)
         => board.ColumnCount * 4 + 3;
 
     /// <summary>
     /// Helper function to draw a border row of the board.
+    /// Wraps to newline when maxWidth is exceeded.
     /// </summary>
-    /// <returns>
-    /// Returns the index of the next board to draw if it needs another row of
-    /// boards.
-    /// </returns>
     private static int DrawBorderRow(
         TicTacToeState state,
         int startBoardIndex,
@@ -55,71 +56,93 @@ public static class BoardRenderer {
         string midBarString, 
         string endBarString, 
         string spanString, 
-        bool showBoardCode)
-    {
-        for (var boardIndex = startBoardIndex; boardIndex < state.Boards.Count; boardIndex+=1) {
+        bool showBoardCode,
+        int maxWidth,
+        StringBuilder sb
+    ) {
+        var boardIndex = startBoardIndex;
+        for (; boardIndex < state.Boards.Count; boardIndex += 1) {
             var board = state.Boards[boardIndex];
-            (var cursorLeft, var cusorTop) = Console.GetCursorPosition ();
-            if(cursorLeft > 0 && (cursorLeft + GetBoardDrawWidth(board) > Console.WindowWidth)) {
-                Console.Out.WriteLine();
-                return boardIndex;
+            var cursorX = sb.GetCursorX();
+            
+            //wrap check - break if cursor would exceed maxWidth
+            if(cursorX > 0 && (cursorX + GetBoardWidth(board) > maxWidth)) {
+                break;
             }
 
-            Console.Out.Write(showBoardCode
+            sb.Append(showBoardCode
                 ? (board.IsDone
                     ? " ✓" //board is done so just show a checkmark.
                     : $" {boardIndex + 1}" //key-index to choose it
-                ): "  " //blank space
+                ) : "  " //blank space
             );
 
-            Console.Out.Write($"{startBarString}{spanString}");
+            sb.Append($"{startBarString}{spanString}");
             
-            for(var col = 0; col < board.ColumnCount-1; col+=1) {
-                Console.Out.Write($"{midBarString}{spanString}");
+            for(var col = 0; col < board.ColumnCount - 1; col += 1) {
+                sb.Append($"{midBarString}{spanString}");
             }
-            Console.Out.Write(endBarString);
+            sb.Append(endBarString);
         }
-        Console.Out.WriteLine();
-        return state.Boards.Count;
+        sb.AppendLine();
+        return boardIndex;
     }
 
-    
     /// <summary>
-    /// Draw a row of board spaces.
+    /// Draw a row of board spaces with window wrapping.
+    /// Wraps to newline when maxWidth is exceeded.
     /// </summary>
-    /// <returns>
-    /// Returns the index of the next board to draw if it needs another row of
-    /// boards.
-    /// </returns>
-    private static int DrawBoardSpacesRow(TicTacToeState state, int startBoardIndex, Player player, string borderBarString, int? activeBoardIndex, int rowIndex) {
-        for (int boardIndex = startBoardIndex; boardIndex < state.Boards.Count; boardIndex+=1) {
+    private static int DrawBoardSpacesRow(
+        TicTacToeState state, 
+        int startBoardIndex,
+        Player player,
+        string borderBarString,
+        int? activeBoardIndex,
+        int rowIndex,
+        int boardWidth,
+        int maxWidth,
+        StringBuilder sb
+    ) {
+        for (int boardIndex = startBoardIndex; boardIndex < state.Boards.Count; boardIndex += 1)
+        {
             var board = state.Boards[boardIndex];
-            (var cursorLeft, var cusorTop) = Console.GetCursorPosition ();
-            if(cursorLeft > 0 && (cursorLeft + GetBoardDrawWidth(board) > Console.WindowWidth)) {
-                Console.Out.WriteLine();
-                return boardIndex;
+            var cursorX = sb.GetCursorX();
+            
+            //wrap check - break if cursor would exceed maxWidth
+            if(cursorX > 0 && (cursorX + boardWidth > maxWidth)) {
+                break;
             }
 
-            Console.Out.Write("  ");
+            sb.Append("  ");
 
-            for(var col = 0; col < board.ColumnCount; col+=1) {
-                DrawSpaceBody(
-                    ModelToKeyUtility.GetSpaceString(state, player, boardIndex, activeBoardIndex, col, rowIndex), 
-                    borderBarString);
+            for(var col = 0; col < board.ColumnCount; col += 1) {
+                var body = ModelToKeyUtility.GetSpaceString(state, player, boardIndex, activeBoardIndex, col, rowIndex);
+                DrawSpaceBody(body, borderBarString, sb);
             }
-            Console.Out.Write(borderBarString);
+            sb.Append(borderBarString);
         }
-        Console.Out.WriteLine();
-        return state.Boards.Count();
+        sb.AppendLine();
+        return state.Boards.Count;
     }
 
     /// <summary>
     /// Helper function to draw the body-spaces of the board.
     /// </summary>
-    private static void DrawSpaceBody(string body, string borderBarString)
-    {
+    private static void DrawSpaceBody(string body, string borderBarString, StringBuilder sb) {
         body = body.PadLeft(2);
         body = body.PadRight(3);
-        Console.Out.Write($"{borderBarString}{body}");
+        sb.Append($"{borderBarString}{body}");
+    }
+
+    public static int GetCursorX(this StringBuilder sb) {
+        int charsSinceLineBreak = 0;
+
+        for (int i = sb.Length - 1; i >= 0; i--) {
+            if (sb[i] == '\n') {
+                break;
+            }
+            charsSinceLineBreak++;
+        }
+        return charsSinceLineBreak;
     }
 }

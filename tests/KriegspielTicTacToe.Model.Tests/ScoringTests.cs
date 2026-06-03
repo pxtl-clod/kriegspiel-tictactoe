@@ -7,20 +7,20 @@ public class ScoringTests {
     #region orthogonal tests
     
     [Fact]
-    public void Given3x3Board_WhenHorizontalFull_ThenXWins() {
+    public void Given3x3Board_WhenVerticalFull_ThenXWins() {
         var board = new Board(3, 3);
 
         board.Spaces[0, 0].Mark = "X";
         board.Spaces[0, 1].Mark = "X";
         board.Spaces[0, 2].Mark = "X";
 
-        board.ScoreCard.HighestScore.Should().NotBeNull();
-        if(board.ScoreCard.HighestScore.HasValue)
-            board.ScoreCard.HighestScore.Value.Player.Mark.Should().Be("X");
+        var expectedPlayerScore = new PlayerScore("X", 1);
+        board.ScoreSpace("X", (0, 0), (0, 1), 3).Should().Be(new ScoreCard(expectedPlayerScore));
+        board.ScoreCard.HighestScore!.Should().Be(expectedPlayerScore);
     }
 
     [Fact]
-    public void Given3x3Board_WhenVerticalFullWithMultipleWinningColumns_ThenMajorityWins() {
+    public void Given3x3Board_WhenHorizontalFullWithMultipleWinningRows_ThenMajorityWins() {
         var board = new Board(3, 3);
 
         board.Spaces[0, 0].Mark = "X";
@@ -35,7 +35,6 @@ public class ScoringTests {
         board.Spaces[1, 2].Mark = "O";
         board.Spaces[2, 2].Mark = "O";
 
-        board.ScoreCard.HighestScore.Should().NotBeNull();
         board.ScoreCard.HighestScore!.Value.Should().Be(new PlayerScore("O", 2));
     }
     #endregion
@@ -49,8 +48,7 @@ public class ScoringTests {
         board.Spaces[1, 1].Mark = "X";
         board.Spaces[2, 2].Mark = "X";
         
-        board.ScoreCard.HighestScore.Should().NotBeNull();
-        board.ScoreCard.HighestScore!.Value.Player.Mark.Should().Be("X");
+        board.ScoreCard.HighestScore!.Value.Should().Be(new PlayerScore("X", 1));
     }
 
     [Fact]
@@ -61,8 +59,7 @@ public class ScoringTests {
         board.Spaces[1, 1].Mark = "X";
         board.Spaces[2, 0].Mark = "X";
         
-        board.ScoreCard.HighestScore.Should().NotBeNull();
-        board.ScoreCard.HighestScore!.Value.Player.Mark.Should().Be("X");
+        board.ScoreCard.HighestScore!.Value.Should().Be(new PlayerScore("X", 1));
     }
     #endregion
 
@@ -77,8 +74,7 @@ public class ScoringTests {
         board.Spaces[1, 1].Mark = "X";
         board.Spaces[2, 2].Mark = "X";
         
-        board.ScoreCard.HighestScore.Should().NotBeNull();
-        board.ScoreCard.HighestScore!.Value.Player.Mark.Should().Be("X");
+        board.ScoreCard.HighestScore!.Value.Should().Be(new PlayerScore("X", 1));
     }
 
     [Fact]
@@ -90,8 +86,7 @@ public class ScoringTests {
         board.Spaces[2, 1].Mark = "X";
         board.Spaces[3, 2].Mark = "X";
         
-        board.ScoreCard.HighestScore.Should().NotBeNull();
-        board.ScoreCard.HighestScore!.Value.Player.Mark.Should().Be("X");
+        board.ScoreCard.HighestScore!.Value.Should().Be(new PlayerScore("X", 1));
     }
 
     [Fact]
@@ -103,8 +98,7 @@ public class ScoringTests {
         board.Spaces[1, 1].Mark = "X";
         board.Spaces[2, 0].Mark = "X";
         
-        board.ScoreCard.HighestScore.Should().NotBeNull();
-        board.ScoreCard.HighestScore!.Value.Player.Mark.Should().Be("X");
+        board.ScoreCard.HighestScore!.Value.Should().Be(new PlayerScore("X", 1));
     }
 
         [Fact]
@@ -116,8 +110,7 @@ public class ScoringTests {
         board.Spaces[2, 1].Mark = "X";
         board.Spaces[3, 0].Mark = "X";
         
-        board.ScoreCard.HighestScore.Should().NotBeNull();
-        board.ScoreCard.HighestScore!.Value.Player.Mark.Should().Be("X");
+        board.ScoreCard.HighestScore!.Value.Should().Be(new PlayerScore("X", 1));
     }
 
     [Fact]
@@ -143,8 +136,7 @@ public class ScoringTests {
         board.Spaces[1, 1].Mark = "X";
         board.Spaces[2, 2].Mark = "X";
         
-        board.ScoreCard.HighestScore.Should().NotBeNull();
-        board.ScoreCard.HighestScore!.Value.Player.Mark.Should().Be("X");
+        board.ScoreCard.HighestScore!.Value.Should().Be(new PlayerScore("X", 1));
     }
 
     [Fact]
@@ -156,8 +148,7 @@ public class ScoringTests {
         board.Spaces[1, 2].Mark = "X";
         board.Spaces[2, 3].Mark = "X";
         
-        board.ScoreCard.HighestScore.Should().NotBeNull();
-        board.ScoreCard.HighestScore!.Value.Player.Mark.Should().Be("X");
+        board.ScoreCard.HighestScore!.Value.Should().Be(new PlayerScore("X", 1));
     }
 
     [Fact]
@@ -169,12 +160,11 @@ public class ScoringTests {
         board.Spaces[1, 1].Mark = "X";
         board.Spaces[2, 0].Mark = "X";
         
-        board.ScoreCard.HighestScore.Should().NotBeNull();
-        board.ScoreCard.HighestScore!.Value.Player.Mark.Should().Be("X");
+        board.ScoreCard.HighestScore!.Value.Should().Be(new PlayerScore("X", 1));
     }
 
     [Fact]
-    public void Given3x4Board_When_InverseDiagonalOffset_ThenXWins() {
+    public void Given3x4Board_WhenInverseDiagonalOffset_ThenXWins() {
         var board = new Board(3, 4);
         
         // Inverse diagonal: starts at (0, diagLen-1) = (0, 2), ends at (diagLen-1, 0) = (2, 0)
@@ -190,7 +180,7 @@ public class ScoringTests {
     #region 4x6 rectangular boards (W=4, H=6, diagLen=4) - diagonal tests
 
     [Fact]
-    public void Given4x6Board_When_IdentityDiagonal_ThenXWins() {
+    public void Given4x6Board_WhenIdentityDiagonal_ThenXWins() {
         var board = new Board(4, 6);
         
         // Identity diagonal: starts at (0, H-diagLen) = (0, 2), ends at (diagLen-1, H-1) = (3, 5)
@@ -199,12 +189,11 @@ public class ScoringTests {
         board.Spaces[2, 2].Mark = "X";
         board.Spaces[3, 3].Mark = "X";
         
-        board.ScoreCard.HighestScore.Should().NotBeNull();
-        board.ScoreCard.HighestScore!.Value.Player.Mark.Should().Be("X");
+        board.ScoreCard.HighestScore!.Value.Should().Be(new PlayerScore("X", 1));
     }
 
     [Fact]
-    public void Given4x6Board_When_IdentityDiagonalOffset1_ThenXWins() {
+    public void Given4x6Board_WhenIdentityDiagonalOffset1_ThenXWins() {
         var board = new Board(4, 6);
         
         // Identity diagonal: starts at (0, H-diagLen) = (0, 2), ends at (diagLen-1, H-1) = (3, 5)
@@ -213,8 +202,7 @@ public class ScoringTests {
         board.Spaces[2, 3].Mark = "X";
         board.Spaces[3, 4].Mark = "X";
         
-        board.ScoreCard.HighestScore.Should().NotBeNull();
-        board.ScoreCard.HighestScore!.Value.Player.Mark.Should().Be("X");
+        board.ScoreCard.HighestScore!.Value.Should().Be(new PlayerScore("X", 1));
     }
     
     
@@ -228,8 +216,7 @@ public class ScoringTests {
         board.Spaces[2, 4].Mark = "X";
         board.Spaces[3, 5].Mark = "X";
         
-        board.ScoreCard.HighestScore.Should().NotBeNull();
-        board.ScoreCard.HighestScore!.Value.Player.Mark.Should().Be("X");
+        board.ScoreCard.HighestScore!.Value.Should().Be(new PlayerScore("X", 1));
     }
 
     [Fact]
@@ -242,8 +229,35 @@ public class ScoringTests {
         board.Spaces[2, 1].Mark = "X";
         board.Spaces[3, 0].Mark = "X";
         
-        board.ScoreCard.HighestScore.Should().NotBeNull();
-        board.ScoreCard.HighestScore!.Value.Player.Mark.Should().Be("X");
+        board.ScoreCard.HighestScore!.Value.Should().Be(new PlayerScore("X", 1));
+    }
+    #endregion
+
+    #region ScoreLength tests
+    [Fact]
+    public void Given6x6BoardScoringLength3_WhenScoringLineIsLength4_ThenXWins1Point() {
+        var board = new Board(6, 6, 3);
+        
+        board.Spaces[0, 3].Mark = "X";
+        board.Spaces[1, 2].Mark = "X";
+        board.Spaces[2, 1].Mark = "X";
+        board.Spaces[3, 0].Mark = "X";
+        
+        board.ScoreCard.HighestScore!.Value.Should().Be(new PlayerScore("X", 1));
+    }
+
+    [Fact]
+    public void Given6x6BoardScoringLength3_WhenScoringLineIsLength6_ThenXWins2Points() {
+        var board = new Board(6, 6, 3);
+        
+        board.Spaces[0, 0].Mark = "X";
+        board.Spaces[1, 1].Mark = "X";
+        board.Spaces[2, 2].Mark = "X";
+        board.Spaces[3, 3].Mark = "X";
+        board.Spaces[4, 4].Mark = "X";
+        board.Spaces[5, 5].Mark = "X";
+        
+        board.ScoreCard.HighestScore!.Value.Should().Be(new PlayerScore("X", 2));
     }
     #endregion
 

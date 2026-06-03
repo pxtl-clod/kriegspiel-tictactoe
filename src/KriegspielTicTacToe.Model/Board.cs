@@ -113,14 +113,16 @@ public record Board {
             var result = new System.Collections.Generic.List<PlayerScore>();
             var width = Spaces.GetLength(0);
             var height = Spaces.GetLength(1);
-            var diagLen = (int)System.Math.Min(width, height);
+            var horizScoreLen = Spaces.GetLength(0);
+            var vertScoreLen = Spaces.GetLength(1);
+            var diagScoreLen = (int)System.Math.Min(horizScoreLen, vertScoreLen);
             
-            //search for full-rows
-            for(int row = 0; row < Spaces.GetLength(1); row+=1) {
+            //search for full-rows (left-to-right only)
+            for(int row = 0; row < vertScoreLen; row+=1) {
                 bool isWinner = true;
                 string? lineOwner = Spaces[0,row].Mark;
                 if(lineOwner != null) {
-                    for(int col = 1; col < Spaces.GetLength(0); col+=1) {
+                    for(int col = 1; col < width && col < horizScoreLen; col+=1) {
                         if(lineOwner != Spaces[col,row].Mark) {
                             isWinner = false;
                             break;
@@ -131,13 +133,13 @@ public record Board {
                     }
                 }
             }
-            //search for full-columns
-            //todo: deduplicate.  Rotate array and re-run?
-            for(int col = 0; col < Spaces.GetLength(0); col+=1) {
+            //search for full-columns (top-to-bottom only)
+            // each column is checked exactly once as a vertical line
+            for(int col = 0; col < width; col+=1) {
                 bool isWinner = true;
                 string? lineOwner = Spaces[col,0].Mark;
                 if(lineOwner != null) {
-                    for(int row = 1; row < Spaces.GetLength(1); row+=1) {
+                    for(int row = 1; row < height && row < vertScoreLen; row+=1) {
                         if(lineOwner != Spaces[col,row].Mark) {
                             isWinner = false;
                             break;
@@ -148,40 +150,46 @@ public record Board {
                     }
                 }
             }
-            
-            //identity diagonal: starts at left edge (row = H - diagLen), ends at right-edge (col = width - 1)
-            {
-                var startRow = height - diagLen;
-                string? lineOwner = Spaces[0,startRow].Mark;
-                if(lineOwner != null) {
+            // Check identity diagonals (going down-right, slope +1)
+            // Starting columns: 0 to width - diagLen
+            // Starting rows: 0 to height - diagLen
+            for(int startCol = 0; startCol <= horizScoreLen - diagScoreLen; startCol+=1) {
+                for(int startRow = 0; startRow <= vertScoreLen - diagScoreLen; startRow+=1) {
                     bool isWinner = true;
-                    for(int col = 1; col < diagLen; col+=1) {
-                        var row = startRow + col;
-                        if(lineOwner != Spaces[col,row].Mark) {
-                            isWinner = false;
-                            break;
+                    string? lineOwner = Spaces[startCol, startRow].Mark;
+                    if(lineOwner != null) {
+                        for(int d = 1; d < diagScoreLen; d+=1) {
+                            if(lineOwner != Spaces[startCol + d, startRow + d].Mark) {
+                                isWinner = false;
+                                break;
+                            }
                         }
-                    }
-                    if(isWinner) {
-                        result.Add(new PlayerScore(new Player(lineOwner), 1));
+                        if(isWinner) {
+                            result.Add(new PlayerScore(new Player(lineOwner), 1));
+                        }
                     }
                 }
             }
-            //inverse diagonal: starts at left edge (row = diagLen - 1), ends at right-edge (col = width - 1)
-            {
-                var startRow = diagLen - 1;
-                string? lineOwner = Spaces[0,startRow].Mark;
-                if(lineOwner != null) {
+            // Check inverse diagonals (going up-right, slope -1: row decreases)
+            // A starting position (startCol, startRow) with row decreasing needs:
+            //   - diagLen cells starting at startCol, moving +1 col and -1 row
+            //   - final position: (startCol + diagLen - 1, startRow - diagLen + 1)
+            //   - bounds: startCol + diagLen - 1 < width  AND  startRow - diagLen + 1 >= 0
+            //   - So: startCol <= width - diagLen  AND  startRow >= diagLen - 1
+            for(int startCol = 0; startCol <= horizScoreLen - diagScoreLen; startCol+=1) {
+                for(int startRow = diagScoreLen - 1; startRow < vertScoreLen; startRow+=1) {
                     bool isWinner = true;
-                    for(int col = 1; col < diagLen; col+=1) {
-                        var row = startRow - col;
-                        if(lineOwner != Spaces[col,row].Mark) {
-                            isWinner = false;
-                            break;
+                    string? lineOwner = Spaces[startCol, startRow].Mark;
+                    if(lineOwner != null) {
+                        for(int d = 1; d < diagScoreLen; d+=1) {
+                            if(lineOwner != Spaces[startCol + d, startRow - d].Mark) {
+                                isWinner = false;
+                                break;
+                            }
                         }
-                    }
-                    if(isWinner) {
-                        result.Add(new PlayerScore(new Player(lineOwner), 1));
+                        if(isWinner) {
+                            result.Add(new PlayerScore(new Player(lineOwner), 1));
+                        }
                     }
                 }
             }

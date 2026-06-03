@@ -47,11 +47,11 @@ internal static class Options {
         DefaultValueFactory = result => 3,
         CustomParser = result => {
             if(byte.TryParse(result.Tokens.Single().Value, out byte size)) {
-                if(2<=size && size <= 10) {
+                if(2<=size && size <= 30) {
                     return size;
                 }
             }
-            result.AddError("Size must be a number from 2 to 10");
+            result.AddError("Size must be a number from 2 to 30");
             return null;
         }
     };
@@ -61,7 +61,7 @@ internal static class Options {
         DefaultValueFactory = result => 3,
         CustomParser = result => {
             if(byte.TryParse(result.Tokens.Single().Value, out byte size)) {
-                if(2<=size && size <= 9) {
+                if(1<=size && size <= 9) {
                     return size;
                 }
             }

@@ -47,12 +47,12 @@ internal static class Options {
         Description = "Board size.  Default is 3x3.",
         DefaultValueFactory = result => 3,
         CustomParser = result => {
-            if(sbyte.TryParse(result.Tokens.Single().Value, out sbyte size)) {
-                if(2<=size && size <= 10) {
+            if(byte.TryParse(result.Tokens.Single().Value, out byte size)) {
+                if(2<=size && size <= 30) {
                     return size;
                 }
             }
-            result.AddError("Size must be a number from 2 to 10");
+            result.AddError("Size must be a number from 2 to 30");
             return null;
         }
     };
@@ -71,8 +71,8 @@ internal static class Options {
         Description = "Number of boards.",
         DefaultValueFactory = result => 3,
         CustomParser = result => {
-            if(sbyte.TryParse(result.Tokens.Single().Value, out sbyte size)) {
-                if(2<=size && size <= 9) {
+            if(byte.TryParse(result.Tokens.Single().Value, out byte size)) {
+                if(1<=size && size <= 9) {
                     return size;
                 }
             }

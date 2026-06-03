@@ -70,7 +70,8 @@ internal static class GameLogic {
             currentPlayerChosen.Switch(
                 playerResult => {
                     var currentPlayer = playerResult.Value;
-                    var currentPlayerIsDoneTurn = DoPlayerTurnLoop(state, currentPlayer, sharedStateFilePath.FullName);
+                    var currentPlayerIsDoneTurn = false;
+                    currentPlayerIsDoneTurn = DoPlayerTurnLoop(state, currentPlayer, sharedStateFilePath.FullName);
 
                     if (currentPlayerIsDoneTurn) {
                         var hasStateChanged = false;
@@ -80,7 +81,9 @@ internal static class GameLogic {
                         }
 
                         if (hasStateChanged) {
-                            BoardRenderer.DrawBoards(state, currentPlayer, activeBoardIndex: null);
+                            Console.Out.WriteLine(
+                                BoardRenderer.DrawBoards(state, currentPlayer, activeBoardIndex: null, maxWidth: Console.BufferWidth)
+                            );
                         }
 
                         if (state.PlayManager.IsRoundOver) {
@@ -90,10 +93,10 @@ internal static class GameLogic {
                                 state.PlayManager.EndRound(out hasRoundStateChanged);
                             }
                             if (hasRoundStateChanged) {
-                                Console.Out.WriteLine($"Press any key to continue...");
-                                Console.ReadKey(intercept: true);
+                                InputUtility.PauseAndPressAnyKey();
                                 Console.Clear();
-                                Console.Out.WriteLine("Round complete, executing synchronous moves.");
+                                Console.Out.WriteLine(state.GameStateText);
+                                Console.Out.WriteLine("Executing synchronous moves.");
                             }
                         }
 
@@ -102,8 +105,7 @@ internal static class GameLogic {
                                 player => { },
                                 localHotseatGame =>
                                 {
-                                    Console.Out.WriteLine($"Press any key to continue...");
-                                    Console.ReadKey(intercept: true);
+                                    InputUtility.PauseAndPressAnyKey();
                                     Console.Clear();
                                 }
                             );
@@ -117,9 +119,7 @@ internal static class GameLogic {
                     isGameOver = true;
                 }
             );                        
-        }
-        
-        Console.Out.WriteLine("Game over.");
+        }        
         Thread.Sleep(1000);
         sharedStateFilePath.Delete();
     }
@@ -128,13 +128,16 @@ internal static class GameLogic {
         var currentPlayerIsDoneTurn = false;
         while (!currentPlayerIsDoneTurn)
         {
-            Console.Out.WriteLine($"Player {currentPlayer}, take your turn.");
+            Console.Out.WriteLine(state.GameStateText);
+            Console.Out.WriteLine($"Player {currentPlayer.Mark}, take your turn.");
             
             var activeBoardIndex = state.SingleActiveBoardIndex;
 
             if (!activeBoardIndex.HasValue) {
                 //player picks a board.
-                BoardRenderer.DrawBoards(state, currentPlayer, activeBoardIndex);
+                Console.Out.WriteLine(
+                    BoardRenderer.DrawBoards(state, currentPlayer, activeBoardIndex, maxWidth: Console.BufferWidth)
+                );
                 var boardCommand = InputUtility.ReadCommandKeys("Press numeric key(s) to pick a board, or 'r' to resign.", 1);
                 boardCommand.Switch(
                     charCode => {
@@ -169,9 +172,10 @@ internal static class GameLogic {
             if (activeBoardIndex.HasValue) {
                 var boardIndex = activeBoardIndex.Value;
                 var boardCode = boardIndex + 1;
-                BoardRenderer.DrawBoards(state, currentPlayer, boardIndex);
+                Console.Out.WriteLine(
+                    BoardRenderer.DrawBoards(state, currentPlayer, boardIndex, maxWidth: Console.BufferWidth)
+                );
                 var spaceCommand = InputUtility.ReadCommandKeys("Press numeric key(s) to play a space, or 'r' to resign.", state.Boards[boardIndex].SpaceNameLength);
-                var spaceString = spaceCommand;
                 spaceCommand.Switch(
                     charCode => {
                         currentPlayerIsDoneTurn = true;
@@ -180,24 +184,30 @@ internal static class GameLogic {
                             state.PlayManager.ResignPlayer(currentPlayer);
                         }
                     },
-                    spaceNameAsInt => state.PlaySpace(boardIndex, spaceNameAsInt.ToString(), currentPlayer).Switch(
-                        notFound => {
-                            currentPlayerIsDoneTurn = false;
-                            Console.WriteLine("Invalid space.");
-                        },
-                        actionQueuedSuccessfully => {
-                            currentPlayerIsDoneTurn = true;
-                            Console.WriteLine($"Played on board {spaceNameAsInt}, space {spaceString}");
-                        }, 
-                        newlyLearned => {
-                            currentPlayerIsDoneTurn = true;
-                            Console.WriteLine($"Space already taken by player '{newlyLearned.Value}'.");
-                        },
-                        alreadyPlayed => {
-                            currentPlayerIsDoneTurn = false;
-                            Console.Out.WriteLine($"Invalid space, that space is already known to player {currentPlayer}");
+                    spaceNameAsInt => {
+                        using (var stateStorage = new StateStorage(sharedStateFilePath)) {
+                            state = stateStorage.State;
+
+                            state.PlaySpace(boardIndex, spaceNameAsInt.ToString(), currentPlayer).Switch(
+                                notFound => {
+                                    currentPlayerIsDoneTurn = false;
+                                    Console.WriteLine("Invalid space.");
+                                },
+                                actionQueuedSuccessfully => {
+                                    currentPlayerIsDoneTurn = true;
+                                    Console.WriteLine($"Played on board {boardCode}, space {spaceNameAsInt.ToString()}");
+                                }, 
+                                newlyLearned => {
+                                    currentPlayerIsDoneTurn = true;
+                                    Console.WriteLine($"Space already taken by player '{newlyLearned.Value}'.");
+                                },
+                                alreadyPlayed => {
+                                    currentPlayerIsDoneTurn = false;
+                                    Console.Out.WriteLine($"Invalid space, that space is already known to player {currentPlayer}");
+                                }
+                            );
                         }
-                    ),
+                    },
                     unknown => {
                         currentPlayerIsDoneTurn = false;
                     }
@@ -221,8 +231,7 @@ internal static class GameLogic {
         while (true) {
             if (playManager.PlayersAvailableForTurn.Count() == 1) {
                 var currentPlayer = playManager.PlayersAvailableForTurn.Single();
-                Console.Out.WriteLine($"Player {currentPlayer} ready? Press any key to continue...");
-                Console.ReadKey(intercept: true);
+                InputUtility.PauseAndPressAnyKey(prompt: $"Player {currentPlayer} ready?");
                 Console.WriteLine();
                 return new Result<Player>(currentPlayer);
             }
@@ -239,8 +248,9 @@ internal static class GameLogic {
                         : $" ({altKey})";
                     return $"Player {p.Mark}{keyDisplay}";
                 });
-            Console.Out.WriteLine($"Player(s) {string.Join(" and ", playerDisplayList)} have not taken their turn.");
+            Console.Out.WriteLine(playManager.GameStateText);
             Console.Out.WriteLine("Who will take the next turn? Press the player's key to take their turn.");
+            Console.Out.WriteLine(string.Join(" ", playerDisplayList));
 
             var keyRead = Console.ReadKey();
 

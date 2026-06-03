@@ -87,23 +87,24 @@ public record TicTacToeState {
             return new NotFound();
         }
         var board = Boards[boardIndex];
-        if (board.TryGetCoordinatesFromSpaceNameAsInt(spaceNameAsInt, out var col, out var row))
-        {
-            return PlaySpace(boardIndex, player, board, col, row);
+        if (board.TryGetCoordinatesFromSpaceNameAsInt(spaceNameAsInt, out var col, out var row)) {
+            return PlaySpace(boardIndex, col, row, player);
         }
         return new NotFound();
     }
 
     public OneOf<NotFound, ActionQueuedSuccessfully, Result<Player>, AlreadyPlayed> PlaySpace(
         int boardIndex,
-        Player player,
-        Board board,
         int col,
-        int row) 
-    {
-        var space = board.Spaces[col, row];
-        if (space.Mark != null) {
+        int row,
+        Player player
+    ) {
+        var space = Boards[boardIndex].Spaces[col, row];
+        if (space.IsKnownToPlayer(player)) {
             return new AlreadyPlayed();
+        } else if (space.Mark != null) {
+            space.MakeKnownToPlayer(player);
+            return new Result<Player>(space.Mark);
         } else {
             PlayActionBuffer.Add(new TicTacToePlayAction(boardIndex, col, row, player));
             return new ActionQueuedSuccessfully();
@@ -132,8 +133,19 @@ public record TicTacToeState {
     [JsonIgnore()]
     public string GameStateText
         => IsGameOver 
-        ? "Game over."
-        : PlayManager.GameStateText;
+        ? (Winner == null
+            ? "Game over. Tie game."
+            : $"Game over. {Winner} wins."
+        )
+        : (PlayManager.GameStateText 
+            + Environment.NewLine
+            + ResignedPlayersText
+        );
+
+    public string ResignedPlayersText
+        => PlayManager.ResignedPlayersSet.Count > 0
+        ? $"Resigned players: {string.Join(", ", PlayManager.ResignedPlayersSet.OrderBy(p => p.Mark))}"
+        : "";
     
     [JsonIgnore()]
     public Player? Winner {

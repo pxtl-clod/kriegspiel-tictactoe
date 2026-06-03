@@ -7,7 +7,7 @@ public class ScoringTests {
     #region orthogonal tests
     
     [Fact]
-    public void ScoreCard_CalculatesWinningBoard_XWins() {
+    public void Given3x3Board_WhenHorizontalFull_ThenXWins() {
         var board = new Board(3, 3);
 
         board.Spaces[0, 0].Mark = "X";
@@ -20,7 +20,7 @@ public class ScoringTests {
     }
 
     [Fact]
-    public void ScoreCard_CalculatesWinningBoardMoreLines_OWins() {
+    public void Given3x3Board_WhenVerticalFullWithMultipleWinningColumns_ThenMajorityWins() {
         var board = new Board(3, 3);
 
         board.Spaces[0, 0].Mark = "X";
@@ -36,13 +36,13 @@ public class ScoringTests {
         board.Spaces[2, 2].Mark = "O";
 
         board.ScoreCard.HighestScore.Should().NotBeNull();
-        board.ScoreCard.HighestScore.Value.Should().Be(new PlayerScore("O", 2));
+        board.ScoreCard.HighestScore!.Value.Should().Be(new PlayerScore("O", 2));
     }
     #endregion
     #region 3x3 square boards - baseline diagonal tests
     
     [Fact]
-    public void ScoreCard_3x3_Diagonal_X_Wins_Identity() {
+    public void Given3x3Board_WhenIdentityDiagonal_ThenXWins() {
         var board = new Board(3, 3);
         
         board.Spaces[0, 0].Mark = "X";
@@ -54,7 +54,7 @@ public class ScoringTests {
     }
 
     [Fact]
-    public void ScoreCard_3x3_Diagonal_X_Wins_Inverse() {
+    public void Given3x3Board_WhenInverseDiagonal_ThenXWins() {
         var board = new Board(3, 3);
         
         board.Spaces[0, 2].Mark = "X";
@@ -69,7 +69,7 @@ public class ScoringTests {
     #region 4x3 rectangular boards (W=4, H=3, diagLen=3) - diagonal tests
     
     [Fact]
-    public void ScoreCard_4x3_Diagonal_X_Wins_Identity() {
+    public void Given4x3Board_WhenIdentityDiagonal_ThenXWins() {
         var board = new Board(4, 3);
         
         // Identity diagonal: starts at (0, H-diagLen) = (0, 0), ends at (diagLen-1, H-1) = (2, 2)
@@ -82,7 +82,7 @@ public class ScoringTests {
     }
 
     [Fact]
-    public void ScoreCard_4x3_Diagonal_X_Wins_OffsetIdentity() {
+    public void Given4x3Board_WhenIdentityDiagonalOffset_ThenXWins() {
         var board = new Board(4, 3);
         
         // Identity diagonal: starts at (0, H-diagLen) = (0, 0), ends at (diagLen-1, H-1) = (2, 2)
@@ -95,7 +95,7 @@ public class ScoringTests {
     }
 
     [Fact]
-    public void ScoreCard_4x3_Diagonal_X_Wins_Inverse() {
+    public void Given4x3Board_WhenInverseDiagonal_ThenXWins() {
         var board = new Board(4, 3);
         
         // Inverse diagonal: starts at (0, diagLen-1) = (0, 2), ends at (diagLen-1, 0) = (2, 0)
@@ -108,7 +108,7 @@ public class ScoringTests {
     }
 
         [Fact]
-    public void ScoreCard_4x3_Diagonal_X_Wins_InverseOffset() {
+    public void Given4x3Board_WhenInverseDiagonalOffset_ThenXWins() {
         var board = new Board(4, 3);
         
         // Inverse diagonal: starts at (0, diagLen-1) = (0, 2), ends at (diagLen-1, 0) = (2, 0)
@@ -121,7 +121,7 @@ public class ScoringTests {
     }
 
     [Fact]
-    public void ScoreCard_4x3_DiagonalEdgeToEdgeOnly2InLine_NoScore() {
+    public void Given4x3Board_WhenDiagonalEdgeToEdgeOnly2InLine_ThenNoScore() {
         var board = new Board(4, 3);
         
         // Only 2 X's inline on diagonal - not a winning line
@@ -135,7 +135,7 @@ public class ScoringTests {
     #region 3x4 rectangular boards (W=3, H=4, diagLen=3) - diagonal tests
     
     [Fact]
-    public void ScoreCard_3x4_Diagonal_X_Wins_Identity() {
+    public void Given3x4Board_WhenIdentityDiagonal_ThenXWins() {
         var board = new Board(3, 4);
         
         // Identity diagonal: starts at (0, H-diagLen) = (0, 1), ends at (diagLen-1, H-1) = (2, 3)
@@ -148,7 +148,7 @@ public class ScoringTests {
     }
 
     [Fact]
-    public void ScoreCard_3x4_Diagonal_X_Wins_IdentityOffset() {
+    public void Given3x4Board_WhenIdentityDiagonalOffset_ThenXWins() {
         var board = new Board(3, 4);
         
         // Identity diagonal: starts at (0, H-diagLen) = (0, 1), ends at (diagLen-1, H-1) = (2, 3)
@@ -161,7 +161,7 @@ public class ScoringTests {
     }
 
     [Fact]
-    public void ScoreCard_3x4_Diagonal_X_Wins_Inverse() {
+    public void Given3x4Board_WhenInverseDiagonal_ThenXWins() {
         var board = new Board(3, 4);
         
         // Inverse diagonal: starts at (0, diagLen-1) = (0, 2), ends at (diagLen-1, 0) = (2, 0)
@@ -174,7 +174,7 @@ public class ScoringTests {
     }
 
     [Fact]
-    public void ScoreCard_3x4_Diagonal_X_Wins_InverseOffset() {
+    public void Given3x4Board_When_InverseDiagonalOffset_ThenXWins() {
         var board = new Board(3, 4);
         
         // Inverse diagonal: starts at (0, diagLen-1) = (0, 2), ends at (diagLen-1, 0) = (2, 0)
@@ -190,7 +190,7 @@ public class ScoringTests {
     #region 4x6 rectangular boards (W=4, H=6, diagLen=4) - diagonal tests
 
     [Fact]
-    public void ScoreCard_4x6_Diagonal_X_Wins_Identity() {
+    public void Given4x6Board_When_IdentityDiagonal_ThenXWins() {
         var board = new Board(4, 6);
         
         // Identity diagonal: starts at (0, H-diagLen) = (0, 2), ends at (diagLen-1, H-1) = (3, 5)
@@ -204,7 +204,7 @@ public class ScoringTests {
     }
 
     [Fact]
-    public void ScoreCard_4x6_Diagonal_X_Wins_IdentityOffset1() {
+    public void Given4x6Board_When_IdentityDiagonalOffset1_ThenXWins() {
         var board = new Board(4, 6);
         
         // Identity diagonal: starts at (0, H-diagLen) = (0, 2), ends at (diagLen-1, H-1) = (3, 5)
@@ -219,7 +219,7 @@ public class ScoringTests {
     
     
     [Fact]
-    public void ScoreCard_4x6_Diagonal_X_Wins_IdentityOffset2() {
+    public void Given4x6Board_WhenIdentityDiagonalOffset2_ThenXWins_() {
         var board = new Board(4, 6);
         
         // Identity diagonal: starts at (0, H-diagLen) = (0, 2), ends at (diagLen-1, H-1) = (3, 5)
@@ -233,7 +233,7 @@ public class ScoringTests {
     }
 
     [Fact]
-    public void ScoreCard_4x6_Diagonal_X_Wins_Inverse() {
+    public void Given4x6Board_WhenInverseDiagonal_ThenXWins() {
         var board = new Board(4, 6);
         
         // Inverse diagonal: starts at (0, diagLen-1) = (0, 3), ends at (diagLen-1, 0) = (3, 0)
@@ -248,17 +248,16 @@ public class ScoringTests {
     #endregion
 
     #region Empty boards
-    
     [Fact]
-    public void ScoreCard_EmptyBoard_NoScore() {
-        var board = new Board(4, 6);
+    public void Given3x3Board_WhenEmptyBoard_ThenNoScore() {
+        var board = new Board(3, 3);
         
         board.ScoreCard.HighestScore.Should().BeNull();
     }
-
+    
     [Fact]
-    public void ScoreCard_EmptyBoard_NoScore_Square() {
-        var board = new Board(3, 3);
+    public void Given4x6Board_WhenEmptyBoard_NoScore() {
+        var board = new Board(4, 6);
         
         board.ScoreCard.HighestScore.Should().BeNull();
     }

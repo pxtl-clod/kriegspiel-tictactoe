@@ -1,9 +1,5 @@
 namespace KriegspielTicTacToe.Model.Tests;
 
-using FluentAssertions;
-using KriegspielTicTacToe.Model;
-using Xunit;
-
 #pragma warning disable IDE0027 // Simplify nested expression
 public class BoardRendererTests {
     

@@ -1,8 +1,5 @@
 namespace KriegspielTicTacToe.Model.Tests;
 
-using FluentAssertions;
-using Xunit;
-
 public class ScoringTests {
     #region orthogonal tests
     

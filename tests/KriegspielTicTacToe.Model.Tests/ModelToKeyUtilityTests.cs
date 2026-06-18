@@ -1,10 +1,4 @@
 namespace KriegspielTicTacToe.Model.Tests;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using KriegspielTicTacToe.Model;
-using KriegspielTicTacToe;
 using Xunit;
 
 public class ModelToKeyUtilityTests

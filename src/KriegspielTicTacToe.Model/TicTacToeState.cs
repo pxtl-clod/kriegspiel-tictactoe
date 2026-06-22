@@ -5,20 +5,6 @@ namespace KriegspielTicTacToe.Model;
 
 public record TicTacToeState {
     public TicTacToeState(
-        char[] players,
-        IEnumerable<BoardBuilder> boardBuilders,
-        bool isRandomPlayerOrder,
-        bool isSynchronousMode
-    ) : this(PlayersFromChars(players), new GameType(boardBuilders, isSynchronousMode), isRandomPlayerOrder) { }
-
-    public TicTacToeState(
-        Player[] players,
-        IEnumerable<BoardBuilder> boardBuilders,
-        bool isRandomPlayerOrder,
-        bool isSynchronousMode
-    ) : this(players, new GameType(boardBuilders, isSynchronousMode), false) { }
-
-    protected TicTacToeState(
         Player[] players,
         GameType gameType,
         bool isRandomPlayerOrder
@@ -34,11 +20,9 @@ public record TicTacToeState {
         Initialize();
     }
 
-    private static Player[] PlayersFromChars(char[] chars)
-        => chars.Select(c => new Player(c.ToString())).ToArray();
-
     public void Initialize() {
         PlayActionBuffer.GameState = this;
+        PlayManager.PlayActionBuffer = PlayActionBuffer;
     }
 
     public PlayManager PlayManager {get;init;}

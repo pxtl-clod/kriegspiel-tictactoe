@@ -110,6 +110,7 @@ public abstract class PlayManager
     /// </summary>
     [JsonIgnore()]
     public abstract string GameStateText {get;}
+
     /// <summary>
     /// The action buffer.  Is set by parent's Init, but Init is
     /// post-constructor so must be nullable.

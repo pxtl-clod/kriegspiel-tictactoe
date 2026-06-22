@@ -1,9 +1,7 @@
 namespace KriegspielTicTacToe.Model.Tests;
 using Xunit;
 
-public class ModelToCommandNameUtilityTests
-{
-    
+public class ModelToCommandNameUtilityTests {
     #region BuildPlayerToCommandNameMap
     [Fact]
     public void BuildPlayerToCommandNameMap_SingleTypeableMark() {
@@ -255,9 +253,11 @@ public class ModelToCommandNameUtilityTests
         var players = new Player[] {new ("X"), new ("O")};
         var gameState = new TicTacToeState(
             players,
-            [new BoardBuilder(3, 3), new BoardBuilder(3, 3)],
-            isRandomPlayerOrder: false,
-            isSynchronousMode: false
+            new GameType {
+                BoardBuilders = [new BoardBuilder(3, 3), new BoardBuilder(3, 3)],
+                IsSynchronousMode = false
+            },
+            isRandomPlayerOrder: false
         );
 
         var expected = new string[3,3] {
@@ -279,9 +279,11 @@ public class ModelToCommandNameUtilityTests
         var players = new Player[] {new ("X"), new ("O")};
         var gameState = new TicTacToeState(
             players,
-            [new BoardBuilder(3, 3), new BoardBuilder(3, 3)],
-            isRandomPlayerOrder: false,
-            isSynchronousMode: false
+            new GameType { 
+                BoardBuilders = [new BoardBuilder(3, 3), new BoardBuilder(3, 3)],
+                IsSynchronousMode = false
+            },
+            isRandomPlayerOrder: false
         );
 
         var expected = " ";
@@ -299,9 +301,8 @@ public class ModelToCommandNameUtilityTests
         var players = new Player[] {new ("X"), new ("O")};
         var gameState = new TicTacToeState(
             players,
-            [new BoardBuilder(3, 3), new BoardBuilder(3, 3)],
-            isRandomPlayerOrder: false,
-            isSynchronousMode: false
+            new GameType { BoardBuilders = [new BoardBuilder(3, 3), new BoardBuilder(3, 3)], IsSynchronousMode = false },
+            isRandomPlayerOrder: false
         );
 
         var expected = " ";
@@ -321,9 +322,8 @@ public class ModelToCommandNameUtilityTests
         var players = new Player[] {new ("X"), new ("O")};
         var gameState = new TicTacToeState(
             players,
-            [new BoardBuilder(3, 3)],
-            isRandomPlayerOrder: false,
-            isSynchronousMode: false
+            new GameType { BoardBuilders = [new BoardBuilder(3, 3)], IsSynchronousMode = false },
+            isRandomPlayerOrder: false
         );
 
         gameState.PlaySpace(0, 1, 1, players[0]);
@@ -351,9 +351,8 @@ public class ModelToCommandNameUtilityTests
         var players = new Player[] {new ("X"), new ("O")};
         var gameState = new TicTacToeState(
             players,
-            [new BoardBuilder(3, 3)],
-            isRandomPlayerOrder: false,
-            isSynchronousMode: false
+            new GameType {BoardBuilders = [new BoardBuilder(3, 3)], IsSynchronousMode = false },
+            isRandomPlayerOrder: false
         );
         //round 1
         gameState.PlaySpace(0, 1, 1, players[0]);
@@ -372,9 +371,8 @@ public class ModelToCommandNameUtilityTests
         var players = new Player[] {new ("X"), new ("O")};
         var gameState = new TicTacToeState(
             players,
-            [new BoardBuilder(3, 3)],
-            isRandomPlayerOrder: false,
-            isSynchronousMode: false
+            new GameType { BoardBuilders = [new BoardBuilder(3, 3)], IsSynchronousMode = false },
+            isRandomPlayerOrder: false
         );
         //round 1
         gameState.PlaySpace(0, 1, 1, players[0]);
@@ -393,9 +391,8 @@ public class ModelToCommandNameUtilityTests
         var players = new Player[] {new ("X"), new ("O")};
         var gameState = new TicTacToeState(
             players,
-            [new BoardBuilder(3, 3)],
-            isRandomPlayerOrder: false,
-            isSynchronousMode: false
+            new GameType { BoardBuilders = [new BoardBuilder(3, 3)], IsSynchronousMode = false },
+            isRandomPlayerOrder: false
         );
 
         //round 1
@@ -431,9 +428,8 @@ public class ModelToCommandNameUtilityTests
         var players = new Player[] {new ("X"), new ("O")};
         var gameState = new TicTacToeState(
             players,
-            [new BoardBuilder(4, 4)],
-            isRandomPlayerOrder: false,
-            isSynchronousMode: false
+            new GameType { BoardBuilders = [new BoardBuilder(4, 4)], IsSynchronousMode = false },
+            isRandomPlayerOrder: false
         );
 
         var expected = new string[4,4] {

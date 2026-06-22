@@ -1,7 +1,7 @@
-namespace KriegSpielTicTacToe.Model.Tests;
+namespace KriegspielTicTacToe.Model.Tests;
 
 using FluentAssertions;
-using KriegSpielTicTacToe.Model;
+using KriegspielTicTacToe.Model;
 
 /// <summary>
 /// Tests for ModelToCommandNameUtility class.
@@ -17,7 +17,7 @@ public class ModelToCommandNameUtilityTests {
         );
         
         map.ContainsKey(new Player("A")).Should().BeTrue();
-        !map.ContainsKey(new Player("B")).Should().BeTrue();
+        map.ContainsKey(new Player("B")).Should().BeFalse();
     }
 
     [Fact]

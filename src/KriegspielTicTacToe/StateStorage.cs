@@ -6,10 +6,11 @@ using Newtonsoft.Json;
 /// Loads and saves game state. Can be used with static load/save or as instance
 /// using-clause for quick load/save cycles. TODO: File locking.
 /// </summary>
-internal class StateStorage : IDisposable {
+public class StateStorage : IDisposable {
     private static JsonSerializerSettings _settings = new JsonSerializerSettings {
         TypeNameHandling = TypeNameHandling.Objects,
-        Formatting = Formatting.Indented
+        Formatting = Formatting.Indented,
+        SerializationBinder = KnownTypesBinder.Instance
     };
     public TicTacToeState State {get; private set;}
     public string FilePath {get;}
@@ -57,19 +58,24 @@ internal class StateStorage : IDisposable {
         }
 
         using var sr = new StreamReader(filePath);
-        var result = JsonConvert.DeserializeObject<TicTacToeState>(sr.ReadToEnd(), _settings)!;
-        result.Initialize();
+        var result = StringToState<TicTacToeState>(sr.ReadToEnd());
         return result;
     }
 
     public static void SaveState(TicTacToeState state, string filePath) {
         using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None);
         using var writer = new StreamWriter(fileStream);
-        writer.Write(JsonConvert.SerializeObject(state, _settings));
+        writer.Write(StateToString(state));
         if (File.Exists(GetLockFilePath(filePath))) {
             File.Delete(GetLockFilePath(filePath));
         }
     }
+
+    public static TState StringToState<TState>(string stateString)
+	=> JsonConvert.DeserializeObject<TState>(stateString, _settings)!;
+
+	public static string StateToString<TState>(TState state)
+	=> JsonConvert.SerializeObject(state, _settings);
 
     public static void TouchFile(string lockFilePath) {
         if(!File.Exists(lockFilePath)) {

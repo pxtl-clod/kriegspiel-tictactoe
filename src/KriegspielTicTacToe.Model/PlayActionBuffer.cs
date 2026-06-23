@@ -1,12 +1,9 @@
 namespace KriegspielTicTacToe.Model;
 
-public interface IPlayActionBuffer {
-    void ExecutePendingActions();
-}
-
 public class PlayActionBuffer<TPlayAction, TState> : IPlayActionBuffer
 where TPlayAction : PlayAction<TPlayAction, TState>
 where TState : IGameState {
+    [JsonProperty(ItemTypeNameHandling = TypeNameHandling.All)]
     public List<TPlayAction> Actions {get;private set;} = [];
 
     public void Add(TPlayAction action) {
@@ -38,4 +35,29 @@ where TState : IGameState {
 
     [JsonIgnore()]
     public TState? GameState { get; internal set; }
+
+    #region Equality
+    // PlayActionBuffer when using record-based comparison fails at equality comparison,
+    // so it must be implemented manually.
+    public override bool Equals(object? obj) {
+        if (obj == null) {
+            return false;
+        }
+        
+        if (obj is PlayActionBuffer<TPlayAction, TState> otherBuffer) {
+            return Actions.SequenceEqual(otherBuffer.Actions);
+        } else {
+            return false;
+        }
+    }
+
+    public static bool operator == (PlayActionBuffer<TPlayAction, TState>? a, PlayActionBuffer<TPlayAction, TState>? b)
+    => (a == null) && (b == null) || (a?.Equals(b) ?? false);
+
+    public static bool operator != (PlayActionBuffer<TPlayAction, TState>? a, PlayActionBuffer<TPlayAction, TState>? b)
+    => !(a == b);
+    
+    // not overriding GetHashCode because that's for Dictionary keys and this is
+    // too mutable to be ever used for that.
+    #endregion
 }

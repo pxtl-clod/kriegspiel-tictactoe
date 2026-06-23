@@ -3,10 +3,6 @@ namespace KriegspielTicTacToe.Model;
 using OneOf;
 using OneOf.Types;
 
-public abstract record PlayManagerFactory() {
-    public abstract PlayManager Create(IReadOnlyList<Player> players);
-}
-
 /// <summary>
 /// Base class containing shared play management logic for retirement and turn tracking.
 /// </summary>
@@ -20,6 +16,7 @@ public abstract class PlayManager
     #endregion
 
     #region members
+    [JsonProperty(TypeNameHandling = TypeNameHandling.None, ItemTypeNameHandling = TypeNameHandling.None)] //non-polymorphic.
     public IReadOnlyList<Player> Players {
         get; init {
             // Validation: ToDictionary will throw ArgumentException on non-unique key.
@@ -32,8 +29,12 @@ public abstract class PlayManager
 
     public int RoundIndex {get;set;}
 
+    [JsonProperty(TypeNameHandling = TypeNameHandling.None, ItemTypeNameHandling = TypeNameHandling.None)] //non-polymorphic.
+
     public HashSet<Player> ResignedPlayersSet {get; init;} = new HashSet<Player>();
     
+    [JsonProperty(TypeNameHandling = TypeNameHandling.None, ItemTypeNameHandling = TypeNameHandling.None)] //non-polymorphic.
+
     public HashSet<Player> PlayedPlayersSet {get; init;} = new HashSet<Player>();
     #endregion
 

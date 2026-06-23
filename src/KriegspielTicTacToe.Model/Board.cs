@@ -14,6 +14,7 @@ public abstract record Board {
     #endregion
 
     #region main data properties
+    [JsonProperty(ItemTypeNameHandling = TypeNameHandling.None, TypeNameHandling = TypeNameHandling.None)] //non-polymorphic
     public Space[,] Spaces {get;set;} = new Space[1,1]{{new Space()}}; //default value is dummy board, never use.
     #endregion
 
@@ -65,12 +66,14 @@ public abstract record Board {
         }
     }
 
+    [JsonIgnore()]
     public IEnumerable<string> SpaceNames
         => BoardAsEnumerable()
             .Select(s => GetSpaceNameAsInt(s.Col, s.Row).ToString());
     #endregion
 
     #region abstract and virtual properties
+    [JsonIgnore()]
     public abstract ScoreCard ScoreCard { get; }
     #endregion
 
@@ -108,11 +111,11 @@ public abstract record Board {
     [JsonIgnore()]
     public virtual bool IsDone
         => IsFull;
+    #endregion
 
     public static bool IsSpaceInsideOfBoard((sbyte Col, sbyte Row) pos, (sbyte Col, sbyte Row) boardSize)
         => (pos.Col < boardSize.Col)
             && (pos.Row < boardSize.Row)
             && (pos.Col >= 0)
             && (pos.Row >= 0);
-    #endregion
 }

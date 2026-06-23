@@ -32,7 +32,7 @@ public record struct ScoreCard {
     #endregion
 
     #region state members
-    public ValueArray<PlayerScore> _scores {get;private set;}
+    private ValueArray<PlayerScore> _scores {get; set;}
     public readonly IReadOnlyList<PlayerScore> PlayerScores
         => _scores;
     #endregion

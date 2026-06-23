@@ -4,6 +4,8 @@ using OneOf.Types;
 namespace KriegspielTicTacToe.Model.TicTacToe;
 
 public record TicTacToeState : GameState<TicTacToeState, TicTacToeGameType, TicTacToeBoard, TicTacToePlayAction> {
+    public TicTacToeState() : base() { }
+
     public TicTacToeState(
         Player[] players,
         TicTacToeGameType gameType,

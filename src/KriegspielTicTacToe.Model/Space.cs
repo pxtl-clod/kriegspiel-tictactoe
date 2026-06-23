@@ -11,6 +11,7 @@ public record Space {
     public string? Mark {get;set;}
     
     private HashSet<Player> _knownToPlayersSet {get;set;} = [];
+    [JsonProperty(ItemTypeNameHandling = TypeNameHandling.None, TypeNameHandling = TypeNameHandling.None)] //non-polymorphic
     public IReadOnlySet<Player> KnownToPlayersSet => _knownToPlayersSet;
     
     /// <summary>

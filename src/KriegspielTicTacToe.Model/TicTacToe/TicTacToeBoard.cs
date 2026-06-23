@@ -114,6 +114,7 @@ public record TicTacToeBoard : Board {
         => ((sbyte)(pos.Col + delta.Col * multiplier), (sbyte)(pos.Row + delta.Row * multiplier));
 
     
+    [JsonIgnore()]
     public override bool IsDone
         => IsFull 
         || (IsBoardDoneWhenScored && ScoreCard.PlayerScores.Any(s => s.Score > 0));

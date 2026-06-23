@@ -16,6 +16,7 @@ public record TicTacToeGameType
             : RoundRobinPlayManagerFactory.Instance;
     }
 
+    [JsonProperty(TypeNameHandling = TypeNameHandling.All)]
     public IEnumerable<TicTacToeBoardBuilder> BoardBuilders {get; init;}
 
     public override IReadOnlyList<TicTacToeBoard> ConstructBoards()

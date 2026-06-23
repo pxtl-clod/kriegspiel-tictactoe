@@ -1,13 +1,27 @@
-using System.Text.Json.Serialization;
-
 namespace KriegspielTicTacToe.Model.TicTacToe;
 
-public record TicTacToePlayAction(
-    int BoardIndex,
-    int Col,
-    int Row,
-    Player Player
-) : PlayAction<TicTacToePlayAction, TicTacToeState> {
+public record TicTacToePlayAction : PlayAction<TicTacToePlayAction, TicTacToeState> {
+    [Obsolete("Default constructor is only used for deserialization.")]
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
+	public TicTacToePlayAction() { }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
+	public TicTacToePlayAction(
+        int boardIndex,
+        int col,
+        int row,
+        Player player
+    ) {
+        BoardIndex = boardIndex;
+        Col = col;
+        Row = row;
+        Player = player;
+    }
+    public int BoardIndex {get;set;}
+    public int Col {get;set;}
+    public int Row {get;set;}
+    [JsonProperty(TypeNameHandling = TypeNameHandling.None)]
+    Player Player {get;set;}
+
 	public override void DoActionCollision(TicTacToeState gameState) {
         if (GetBoard(gameState).IsDone) {
             return;

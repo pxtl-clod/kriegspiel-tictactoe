@@ -1,18 +1,21 @@
 namespace KriegspielTicTacToe.Model;
 
-public abstract record GameView<TState, TTemplate, TScoring, TAction>
-where TState : GameState<TState, TTemplate, TScoring, TAction>
-where TTemplate : GameTemplate<TScoring>
-where TScoring : GameScoring
-where TAction : PlayAction<TAction, TState> {
-    public GameView (Player? player, GameState<TState, TTemplate, TScoring, TAction> gameState) {
+public record GameView {
+    #region Constructors
+    public GameView (Player? player, IGameState gameState) {
         Player = player;
         GameState = gameState;
     }
-    public Player? Player {get; init;}
-    public GameState<TState, TTemplate, TScoring, TAction> GameState { get; init; }
+    #endregion
 
+    #region Data Properties
+    public Player? Player {get; init;}
+    protected IGameState GameState { get; init; }
+    #endregion
+
+    #region Calculated Members
     public IReadOnlyList<Board> Boards => GameState.Boards;
-    public bool CanTakeTurn => GameState.PlayManager.CanTakeTurn(Player);
     public bool IsGameOver => GameState.IsGameOver;
+    public bool CanTakeTurn => GameState.PlayManager.CanTakeTurn(Player);
+    #endregion
 }

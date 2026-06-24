@@ -1,7 +1,7 @@
 namespace KriegspielTicTacToe.Model;
 
-public abstract record GameTemplate<TScoring>() : IGameTemplate
-where TScoring : GameScoring {
+public abstract record GameTemplate()
+: IGameTemplate {
     [JsonProperty(TypeNameHandling = TypeNameHandling.All)]
 	public PlayManagerFactory PlayManagerFactory { get; init; } = RoundRobinPlayManagerFactory.Instance;
 

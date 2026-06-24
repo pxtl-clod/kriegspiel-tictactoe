@@ -3,7 +3,7 @@ using OneOf.Types;
 
 namespace KriegspielTicTacToe.Model.TicTacToe;
 
-public record TicTacToeState : GameState<TicTacToeState, TicTacToeTemplate, TicTacToeScoring, TicTacToePlayAction> {
+public record TicTacToeState : GameState<TicTacToeState, TicTacToeTemplate, TicTacToePlayAction> {
     [Obsolete]
     public TicTacToeState() : base() { }
 

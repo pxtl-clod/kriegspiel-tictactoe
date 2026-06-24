@@ -5,7 +5,7 @@ public class BoardRendererTests {
     
     [Fact]
     public void DrawBoards_3x3_ReturnsBlankBoardGridString() {
-        var boardBuilder = new BoardBuilder(3, 3);
+        var boardBuilder = TicTacToeScoring.CreateBoardBuilder(3, 3);
         var state = new TicTacToeState(new[] { 'X', 'O' }.ToPlayersArray(),
             new TicTacToeTemplate([ boardBuilder ], isSynchronousMode: false),
             isRandomPlayerOrder: false
@@ -13,7 +13,7 @@ public class BoardRendererTests {
         
         var currentPlayer = state.PlayManager.PlayersAvailableForTurn.First();
         
-        var actual = BoardRenderer.DrawBoards(new TicTacToeView(currentPlayer, state), activeBoardIndex: null);
+        var actual = BoardRenderer.DrawBoards(new GameView(currentPlayer, state), activeBoardIndex: null);
         var expected = @"
   ┌───┬───┬───┐
   │   │   │   │
@@ -32,7 +32,7 @@ public class BoardRendererTests {
 
     [Fact]
     public void DrawBoards_3x3WithOneMove_ReturnsBoardGridStringWithMove() {
-        var boardBuilder = new BoardBuilder(3, 3);
+        var boardBuilder = TicTacToeScoring.CreateBoardBuilder(3, 3);
         var state = new TicTacToeState(
             (new[] { 'X', 'O' }).ToPlayersArray(),
             new TicTacToeTemplate([ boardBuilder ], isSynchronousMode: false),
@@ -55,14 +55,14 @@ public class BoardRendererTests {
             .TrimEnd()
             .ReplaceLineEndings();
 
-        var actual = BoardRenderer.DrawBoards(new TicTacToeView(currentPlayer, state), activeBoardIndex: null);    
+        var actual = BoardRenderer.DrawBoards(new GameView(currentPlayer, state), activeBoardIndex: null);    
         actual.TrimEnd().Should().Be(expected);
     }
 
 
     [Fact]
     public void DrawBoards_3x3WithActiveBoard_ReturnBoardsWithSpaceCodesGridString() {
-        var boardBuilder3x3 = new BoardBuilder(3, 3);
+        var boardBuilder3x3 = TicTacToeScoring.CreateBoardBuilder(3, 3);
         
         var state = new TicTacToeState(
             (new[] { 'X', 'O' }).ToPlayersArray(),
@@ -72,7 +72,7 @@ public class BoardRendererTests {
 
         var currentPlayer = new Player("X");
         // 0 means wrap as tight as possible.
-        var actual = BoardRenderer.DrawBoards(new TicTacToeView(currentPlayer, state), activeBoardIndex: 0);
+        var actual = BoardRenderer.DrawBoards(new GameView(currentPlayer, state), activeBoardIndex: 0);
 
         var expected = @"
   ┌───┬───┬───┐
@@ -92,7 +92,7 @@ public class BoardRendererTests {
 
     [Fact]
     public void DrawBoards_3x3WithActiveBoardAndOneMove_ReturnBoardsWithSpaceCodesGridString() {
-        var boardBuilder3x3 = new BoardBuilder(3, 3);
+        var boardBuilder3x3 = TicTacToeScoring.CreateBoardBuilder(3, 3);
         
         var state = new TicTacToeState(
             (new[] { 'X', 'O' }).ToPlayersArray(),
@@ -109,7 +109,7 @@ public class BoardRendererTests {
         state.PlayManager.EndTurn(otherPlayer, out var _);
         state.PlayManager.EndRound(out var _);
 
-        var actual = BoardRenderer.DrawBoards(new TicTacToeView(currentPlayer, state), activeBoardIndex: 0);
+        var actual = BoardRenderer.DrawBoards(new GameView(currentPlayer, state), activeBoardIndex: 0);
 
         var expected = @"
   ┌───┬───┬───┐
@@ -129,7 +129,7 @@ public class BoardRendererTests {
 
     [Fact]
     public void DrawBoards_30x30_ReturnsBlankBoardGridString() {
-        var boardBuilder = new BoardBuilder(30, 30);
+        var boardBuilder = TicTacToeScoring.CreateBoardBuilder(30, 30);
         var state = new TicTacToeState(
             (new[] { 'X', 'O' }).ToPlayersArray(),
             new TicTacToeTemplate([ boardBuilder ], isSynchronousMode: false),
@@ -138,7 +138,7 @@ public class BoardRendererTests {
         
         var currentPlayer = state.PlayManager.PlayersAvailableForTurn.First();
         
-        var actual = BoardRenderer.DrawBoards(new TicTacToeView(currentPlayer, state), activeBoardIndex: null);
+        var actual = BoardRenderer.DrawBoards(new GameView(currentPlayer, state), activeBoardIndex: null);
         var expected = @"
   ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
   │   │   │   │   │   │   │   │   │   │   │   │   │   │   │   │   │   │   │   │   │   │   │   │   │   │   │   │   │   │   │
@@ -211,7 +211,7 @@ public class BoardRendererTests {
 
     [Fact]
     public void DrawBoards_30x30WithActiveBoard_ReturnBoardsWithSpaceCodesGridString() {
-        var boardBuilder = new BoardBuilder(30, 30);
+        var boardBuilder = TicTacToeScoring.CreateBoardBuilder(30, 30);
         var state = new TicTacToeState(
             (new[] { 'X', 'O' }).ToPlayersArray(),
             new TicTacToeTemplate([ boardBuilder ], isSynchronousMode: false),
@@ -220,7 +220,7 @@ public class BoardRendererTests {
         
         var currentPlayer = state.PlayManager.PlayersAvailableForTurn.First();
         
-        var actual = BoardRenderer.DrawBoards(new TicTacToeView(currentPlayer, state), activeBoardIndex: 0);
+        var actual = BoardRenderer.DrawBoards(new GameView(currentPlayer, state), activeBoardIndex: 0);
         var expected = @"
   ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
   │871│872│873│874│875│876│877│878│879│880│881│882│883│884│885│886│887│888│889│890│891│892│893│894│895│896│897│898│899│900│
@@ -293,7 +293,7 @@ public class BoardRendererTests {
 
     [Fact]
     public void DrawBoards_3x3MultipleBoardsWithWrapping_ReturnWrappedBoardGridString() {
-        var boardBuilder3x3 = new BoardBuilder(3, 3);
+        var boardBuilder3x3 = TicTacToeScoring.CreateBoardBuilder(3, 3);
         
         var state = new TicTacToeState(
             (new[] { 'X', 'O' }).ToPlayersArray(),
@@ -303,7 +303,7 @@ public class BoardRendererTests {
 
         var currentPlayer = new Player("X");
         // wrap halfway through 3rd board
-        var actual = BoardRenderer.DrawBoards(new TicTacToeView(currentPlayer, state), activeBoardIndex: null, maxWidth:42);
+        var actual = BoardRenderer.DrawBoards(new GameView(currentPlayer, state), activeBoardIndex: null, maxRenderWidth:42);
         var expected = @"
  1┌───┬───┬───┐ 2┌───┬───┬───┐
   │   │   │   │  │   │   │   │
@@ -329,7 +329,7 @@ public class BoardRendererTests {
 
     [Fact]
     public void DrawBoards_3x3MultipleBoardsWithNarrowWrapping_ReturnWrappedBoardGridString() {
-        var boardBuilder3x3 = new BoardBuilder(3, 3);
+        var boardBuilder3x3 = TicTacToeScoring.CreateBoardBuilder(3, 3);
         
         var state = new TicTacToeState(
             (new[] { 'X', 'O' }).ToPlayersArray(),
@@ -340,7 +340,7 @@ public class BoardRendererTests {
         var currentPlayer = new Player("X");
         
         // 0 means wrap as tight as possible.
-        var actual = BoardRenderer.DrawBoards(new TicTacToeView(currentPlayer, state), activeBoardIndex: null, maxWidth:0);
+        var actual = BoardRenderer.DrawBoards(new GameView(currentPlayer, state), activeBoardIndex: null, maxRenderWidth:0);
         var expected = @"
  1┌───┬───┬───┐
   │   │   │   │
@@ -373,7 +373,7 @@ public class BoardRendererTests {
 
     [Fact]
     public void DrawBoards_3x3MultipleBoardsWithActiveBoard_ReturnBoardsWithSpaceCodesGridString() {
-        var boardBuilder3x3 = new BoardBuilder(3, 3);
+        var boardBuilder3x3 = TicTacToeScoring.CreateBoardBuilder(3, 3);
         
         var state = new TicTacToeState(
             (new[] { 'X', 'O' }).ToPlayersArray(),
@@ -384,7 +384,7 @@ public class BoardRendererTests {
         var currentPlayer = new Player("X");
         var activeBoardIndex = 1; //2nd board
 
-        var actual = BoardRenderer.DrawBoards(new TicTacToeView(currentPlayer, state), activeBoardIndex, maxWidth:999999);
+        var actual = BoardRenderer.DrawBoards(new GameView(currentPlayer, state), activeBoardIndex, maxRenderWidth:999999);
 
         var expected = @"
  1┌───┬───┬───┐ 2┌───┬───┬───┐ 3┌───┬───┬───┐

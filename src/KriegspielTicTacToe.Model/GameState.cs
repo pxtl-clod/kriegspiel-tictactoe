@@ -4,10 +4,9 @@ using OneOf.Types;
 
 namespace KriegspielTicTacToe.Model;
 
-public abstract record GameState<TState, TTemplate, TScoring, TAction> : IGameState
-where TState : GameState<TState, TTemplate, TScoring, TAction>
-where TTemplate : GameTemplate<TScoring>
-where TScoring : GameScoring 
+public abstract record GameState<TState, TTemplate, TAction> : IGameState
+where TState : GameState<TState, TTemplate, TAction>
+where TTemplate : GameTemplate
 where TAction : PlayAction<TAction, TState> {
     #region Constructors
     public GameState() { 
@@ -65,19 +64,17 @@ where TAction : PlayAction<TAction, TState> {
             : new NotFound();
     }
 
-    public IEnumerable<string> BoardNames {
-        get {
-            for(var i = 1; i <= Boards.Count; i += 1) {
-                yield return i.ToString();
-            }
+    public IEnumerable<string> BoardNames { get {
+        for(var i = 1; i <= Boards.Count; i += 1) {
+            yield return i.ToString();
         }
-    }
-        
+    }}
+
     public Board GetBoardByIndex(int boardIndex)
     => Boards[boardIndex];
 
     [JsonIgnore()]
-    public IEnumerable<int> ActiveBoardIndices {get {
+    public IEnumerable<int> ActiveBoardIndices { get {
         for(int i = 0; i < Boards.Count; i+=1) {
             if(!Boards[i].IsDone) {
                 yield return i; 
@@ -86,14 +83,14 @@ where TAction : PlayAction<TAction, TState> {
     }}
     
     [JsonIgnore()]
-    public int? SingleActiveBoardIndex {get {
+    public int? SingleActiveBoardIndex { get {
         var firstElements = ActiveBoardIndices.Take(2).ToArray();
         return (firstElements.Length == 1) ? firstElements.Single() : null;
     }}
 
     [JsonIgnore()]
     public string GameStateText
-        => IsGameOver 
+    => IsGameOver 
         ? (Winner == null
             ? "Game over. Tie game."
             : $"Game over. {Winner} wins."
@@ -104,18 +101,20 @@ where TAction : PlayAction<TAction, TState> {
         );
 
     public string ResignedPlayersText
-        => PlayManager.ResignedPlayersSet.Count > 0
+    => PlayManager.ResignedPlayersSet.Count > 0
         ? $"Resigned players: {string.Join(", ", PlayManager.ResignedPlayersSet.OrderBy(p => p.Mark))}"
         : "";
     
     [JsonIgnore()]
-    public Player? Winner {
-        get {
-            if(!IsGameOver) return null;
-            if(PlayManager.ActivePlayers.Count() == 1) return PlayManager.ActivePlayers.Single();
+    public Player? Winner { get {
+        if(!IsGameOver) {
             return null;
         }
-    }
+        if(PlayManager.ActivePlayers.Count() == 1) {
+            return PlayManager.ActivePlayers.Single();
+        }
+        return null;
+    }}
 
     [JsonIgnore()]
     public bool IsGameOver

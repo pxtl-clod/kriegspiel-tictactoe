@@ -4,7 +4,7 @@ namespace KriegspielTicTacToe.Model.TicTacToe;
 /// Represents a game type configuration including board builders and play mode settings.
 /// </summary>
 public record TicTacToeTemplate
-: GameTemplate<TicTacToeScoring> {
+: GameTemplate {
     public TicTacToeTemplate(
         IEnumerable<BoardBuilder> boardBuilders,
         bool isSynchronousMode

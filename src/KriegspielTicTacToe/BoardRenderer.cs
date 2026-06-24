@@ -8,9 +8,9 @@ using System.Text;
 /// </summary>
 public static class BoardRenderer {
     public static string DrawBoards(
-        TicTacToeView gameView,
+        GameView gameView,
         int? activeBoardIndex,
-        int maxWidth = int.MaxValue
+        int maxRenderWidth = int.MaxValue
     ) {
         bool doShowBoardCode = gameView.Boards.Count > 1;
         var maxRowCount = gameView.Boards.Max(b => b.RowCount);
@@ -20,15 +20,15 @@ public static class BoardRenderer {
         var boardWidth = GetBoardWidth(gameView.Boards[nextDrawnBoardIndex]);
        
         while (nextDrawnBoardIndex < gameView.Boards.Count) {
-            DrawBorderRow(gameView, nextDrawnBoardIndex, "┌", "┬", "┐", "───", doShowBoardCode, maxWidth, sb);
+            DrawBorderRow(gameView, nextDrawnBoardIndex, "┌", "┬", "┐", "───", doShowBoardCode, maxRenderWidth, sb);
             
             for(var row = 0; row < maxRowCount; row += 1) {
                 if(row > 0) {
-                    DrawBorderRow(gameView, nextDrawnBoardIndex, "├", "┼", "┤", "───", false, maxWidth, sb);
+                    DrawBorderRow(gameView, nextDrawnBoardIndex, "├", "┼", "┤", "───", false, maxRenderWidth, sb);
                 }
-                DrawBoardSpacesRow(gameView, nextDrawnBoardIndex, "│", activeBoardIndex, row, boardWidth, maxWidth, sb);
+                DrawBoardSpacesRow(gameView, nextDrawnBoardIndex, "│", activeBoardIndex, row, boardWidth, maxRenderWidth, sb);
             }
-            nextDrawnBoardIndex = DrawBorderRow(gameView, nextDrawnBoardIndex, "└", "┴", "┘", "───", false, maxWidth, sb);
+            nextDrawnBoardIndex = DrawBorderRow(gameView, nextDrawnBoardIndex, "└", "┴", "┘", "───", false, maxRenderWidth, sb);
         }
 
         sb.AppendLine();
@@ -43,7 +43,7 @@ public static class BoardRenderer {
     /// Wraps to newline when maxWidth is exceeded.
     /// </summary>
     private static int DrawBorderRow(
-        TicTacToeView gameView,
+        GameView gameView,
         int startBoardIndex,
         string startBarString, 
         string midBarString, 
@@ -86,7 +86,7 @@ public static class BoardRenderer {
     /// Wraps to newline when maxWidth is exceeded.
     /// </summary>
     private static int DrawBoardSpacesRow(
-        TicTacToeView gameView, 
+        GameView gameView, 
         int startBoardIndex,
         string borderBarString,
         int? activeBoardIndex,

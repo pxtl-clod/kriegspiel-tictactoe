@@ -1,3 +1,5 @@
+using System.Diagnostics.Metrics;
+
 namespace KriegspielTicTacToe.Model;
 
 /// <summary>
@@ -5,7 +7,9 @@ namespace KriegspielTicTacToe.Model;
 /// </summary>
 public interface IGameState {
     [JsonProperty(TypeNameHandling = TypeNameHandling.All)]
-    PlayManager PlayManager {get;}
+    PlayManager PlayManager { get; }
     [JsonProperty(TypeNameHandling = TypeNameHandling.All)]
-    IReadOnlyList<Board> Boards {get;}
+    IReadOnlyList<Board> Boards { get; }
+    [JsonIgnore()]
+    bool IsGameOver { get; }
 }

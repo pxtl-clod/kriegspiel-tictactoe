@@ -81,9 +81,9 @@ internal static class GameLogic {
                         }
 
                         if (hasStateChanged) {
-                            var gameView = new TicTacToeView(currentPlayer, state);
+                            var gameView = new GameView(currentPlayer, state);
                             Console.Out.WriteLine(
-                                BoardRenderer.DrawBoards(gameView, activeBoardIndex: null, maxWidth: Console.BufferWidth)
+                                BoardRenderer.DrawBoards(gameView, activeBoardIndex: null, maxRenderWidth: Console.BufferWidth)
                             );
                         }
 
@@ -135,10 +135,10 @@ internal static class GameLogic {
             var activeBoardIndex = state.SingleActiveBoardIndex;
 
             if (!activeBoardIndex.HasValue) {
-                var gameView = new TicTacToeView(currentPlayer, state);
+                var gameView = new GameView(currentPlayer, state);
                 //player picks a board.
                 Console.Out.WriteLine(
-                    BoardRenderer.DrawBoards(gameView, activeBoardIndex, maxWidth: Console.BufferWidth)
+                    BoardRenderer.DrawBoards(gameView, activeBoardIndex, maxRenderWidth: Console.BufferWidth)
                 );
                 var availableBoardCommands = state.BoardNames;
                 var boardCommand = InputUtility.ReadCommandInputWithAddedStandardPlayerCommands(
@@ -181,9 +181,9 @@ internal static class GameLogic {
             if (activeBoardIndex.HasValue) {
                 var boardIndex = activeBoardIndex.Value;
                 var boardCode = boardIndex + 1;
-                var gameView = new TicTacToeView(currentPlayer, state);
+                var gameView = new GameView(currentPlayer, state);
                 Console.Out.WriteLine(
-                    BoardRenderer.DrawBoards(gameView, boardIndex, maxWidth: Console.BufferWidth)
+                    BoardRenderer.DrawBoards(gameView, boardIndex, maxRenderWidth: Console.BufferWidth)
                 );
                 var spaceCommand = InputUtility.ReadCommandInputWithAddedStandardPlayerCommands(
                     "Press numeric key(s) to play a space, or 'r' to resign.",

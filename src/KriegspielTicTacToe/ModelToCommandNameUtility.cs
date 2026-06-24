@@ -71,7 +71,7 @@ public static class ModelToCommandNameUtility {
     /// they have created or discovered.  If the player is the
     /// current-turn-player, then the space index codes will be displayed.
     /// </summary>
-    public static string GetSpaceCommandName(TicTacToeView gameView, int boardIndex, int? activeBoardIndex, int col, int row) {
+    public static string GetSpaceCommandName(GameView gameView, int boardIndex, int? activeBoardIndex, int col, int row) {
         ArgumentNullException.ThrowIfNull(gameView);
         var player = gameView.Player;
         player = gameView.IsGameOver //show for all players if the game is over.

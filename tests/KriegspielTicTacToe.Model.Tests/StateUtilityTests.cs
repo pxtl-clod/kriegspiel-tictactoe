@@ -11,7 +11,7 @@ public class StateUtilityTests {
 
     [Fact]
     public void SerializeAndDeserialize_BlankGameState() {
-        var boardBuilder3x3 = new BoardBuilder(3, 3);
+        var boardBuilder3x3 = TicTacToeScoring.CreateBoardBuilder(3, 3);
         IGameState expectedState = new TicTacToeState(
             new char[] { 'X', 'O' }.ToPlayersArray(),
             new TicTacToeTemplate([boardBuilder3x3, boardBuilder3x3, boardBuilder3x3], isSynchronousMode: false),
@@ -25,7 +25,7 @@ public class StateUtilityTests {
 
     [Fact]
     public void SerializeAndDeserialize_SynchronousGameState() {
-        var boardBuilder3x3 = new BoardBuilder(3, 3);
+        var boardBuilder3x3 = TicTacToeScoring.CreateBoardBuilder(3, 3);
         var players = new char[] { 'X', 'O' }.ToPlayersArray();
         var playerX = players[0];
         var playerO = players[1];

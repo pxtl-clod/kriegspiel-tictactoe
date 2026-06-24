@@ -35,7 +35,7 @@ public class RoundRobinPlayManager
 }
 
 public record RoundRobinPlayManagerFactory
-: PlayManagerFactory {
+: Template.PlayManagerFactory {
     public static RoundRobinPlayManagerFactory Instance {get;} = new RoundRobinPlayManagerFactory();
 	public override PlayManager Create(IReadOnlyList<Player> players) 
 		=> new RoundRobinPlayManager(players);

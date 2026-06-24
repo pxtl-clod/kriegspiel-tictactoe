@@ -1,8 +1,6 @@
 using System.Runtime.Serialization;
-using KriegspielTicTacToe.Model.TicTacToe;
+using KriegspielTicTacToe.Model.Template;
 using KriegspielTicTacToe.Model.Views;
-using OneOf;
-using OneOf.Types;
 
 namespace KriegspielTicTacToe.Model;
 

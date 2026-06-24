@@ -1,3 +1,5 @@
+using KriegspielTicTacToe.Model.Template;
+
 namespace KriegspielTicTacToe.Model.TicTacToe;
 
 /// <summary>

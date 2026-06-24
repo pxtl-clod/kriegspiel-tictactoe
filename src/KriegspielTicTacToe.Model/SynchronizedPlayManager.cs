@@ -37,7 +37,7 @@ public class SynchronizedPlayManager
 }
 
 public record SynchronizedPlayManagerFactory
-: PlayManagerFactory {
+: Template.PlayManagerFactory {
     public static SynchronizedPlayManagerFactory Instance {get;} = new SynchronizedPlayManagerFactory();
 	public override PlayManager Create(IReadOnlyList<Player> players) 
 		=> new SynchronizedPlayManager(players);

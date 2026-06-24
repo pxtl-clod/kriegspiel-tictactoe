@@ -1,7 +1,8 @@
-namespace KriegspielTicTacToe;
-
 using OneOf;
 using OneOf.Types;
+using KriegspielTicTacToe.Model.Template;
+
+namespace KriegspielTicTacToe;
 
 /// <summary>
 /// Game logic implementation.

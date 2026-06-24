@@ -5,13 +5,13 @@ namespace KriegspielTicTacToe.Model.TicTacToe;
 
 public record TicTacToeRuleset(sbyte? ScoringLength = null, bool IsBoardDoneWhenScored = false)
 : GameRuleset() {
-    public static BoardBuilder CreateBoardBuilder(
+    public static Template.BoardBuilder CreateBoardBuilder(
         sbyte Width,
         sbyte Height,
         sbyte? ScoringLength = null,
         bool IsBoardDoneWhenScored = false
     ) {
-        return new BoardBuilder(
+        return new Template.BoardBuilder(
             Width,
             Height,
             new TicTacToeRuleset(ScoringLength, IsBoardDoneWhenScored)
@@ -50,8 +50,14 @@ public record TicTacToeRuleset(sbyte? ScoringLength = null, bool IsBoardDoneWhen
         }
         return result;
     }
+    
+    public override bool IsDone(Board board)
+    => IsBoardDoneWhenScored && board.ScoreCard.PlayerScores.Any(s => s.Score > 0);
+    #endregion
 
-    public ScoreCard ScoreSpace(
+    #region private helpers
+
+    protected ScoreCard ScoreSpace(
         Player lineOwnerPlayer,
         Board board,
         (sbyte Col, sbyte Row) pos,
@@ -74,7 +80,7 @@ public record TicTacToeRuleset(sbyte? ScoringLength = null, bool IsBoardDoneWhen
     /// <param name="delta"></param>
     /// <param name="scoreLen"></param>
     /// <returns></returns>
-    public ScoreCard ScoreSpace(
+    protected ScoreCard ScoreSpace(
         Player lineOwnerPlayer,
         Board board,
         (sbyte Col, sbyte Row) lineStartPos,
@@ -113,11 +119,9 @@ public record TicTacToeRuleset(sbyte? ScoringLength = null, bool IsBoardDoneWhen
             ? new ScoreCard(lineOwnerPlayer, lineScore)
             : ScoreCard.Empty;
     }
-    
-    public override bool IsDone(Board board)
-    => IsBoardDoneWhenScored && board.ScoreCard.PlayerScores.Any(s => s.Score > 0);
-    #endregion
 
     private static (sbyte Col, sbyte Row) ExtrapolatePos((sbyte Col, sbyte Row) pos, (sbyte Col, sbyte Row) delta, int multiplier)
     => ((sbyte)(pos.Col + delta.Col * multiplier), (sbyte)(pos.Row + delta.Row * multiplier));
+    #endregion
+
 }

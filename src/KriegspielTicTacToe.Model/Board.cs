@@ -19,7 +19,7 @@ public record Board
     public Board()
     : this(1, 1, GameRuleset.Empty) { }
 
-    public Board(BoardBuilder builder)
+    public Board(Template.BoardBuilder builder)
     : this(builder.Width, builder.Height, builder.Ruleset) { }
 
     public Board(sbyte width, sbyte height)

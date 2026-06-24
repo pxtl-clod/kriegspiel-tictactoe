@@ -1,8 +1,9 @@
-namespace KriegspielTicTacToe;
-
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using OneOf;
+using KriegspielTicTacToe.Model.Template;
+
+namespace KriegspielTicTacToe;
 
 /// <summary>
 /// Application entry point.

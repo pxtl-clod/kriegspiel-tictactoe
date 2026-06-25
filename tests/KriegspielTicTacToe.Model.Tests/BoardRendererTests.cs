@@ -5,10 +5,10 @@ public class BoardRendererTests {
     
     [Fact]
     public void DrawBoards_3x3_ReturnsBlankBoardGridString() {
-        var boardBuilder = TicTacToeRuleset.CreateBoardBuilder(3, 3);
-        var state = new GameState<TicTacToePlayAction>(
+        var boardBuilder = MNKRuleset.CreateBoardBuilder(3, 3);
+        var state = new GameState<MNKPlayAction>(
             new[] { 'X', 'O' }.ToPlayersArray(),
-            new TicTacToeTemplate([ boardBuilder ], isSynchronousMode: false, isKriegspiel: true),
+            new MNKTemplate([ boardBuilder ], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
         
@@ -33,15 +33,15 @@ public class BoardRendererTests {
 
     [Fact]
     public void DrawBoards_3x3WithOneMove_ReturnsBoardGridStringWithMove() {
-        var boardBuilder = TicTacToeRuleset.CreateBoardBuilder(3, 3);
-        var state = new GameState<TicTacToePlayAction>(
+        var boardBuilder = MNKRuleset.CreateBoardBuilder(3, 3);
+        var state = new GameState<MNKPlayAction>(
             (new[] { 'X', 'O' }).ToPlayersArray(),
-            new TicTacToeTemplate([ boardBuilder ], isSynchronousMode: false, isKriegspiel: true),
+            new MNKTemplate([ boardBuilder ], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
         
         var currentPlayer = new Player("X");
-        state.Enqueue(new TicTacToePlayAction(0, 0, 0, currentPlayer));
+        state.Enqueue(new MNKPlayAction(0, 0, 0, currentPlayer));
         state.PlayManager.EndTurn(currentPlayer, out var _);
         var expected = @"
   ┌───┬───┬───┐
@@ -63,11 +63,11 @@ public class BoardRendererTests {
 
     [Fact]
     public void DrawBoards_3x3WithActiveBoard_ReturnBoardsWithSpaceCodesGridString() {
-        var boardBuilder3x3 = TicTacToeRuleset.CreateBoardBuilder(3, 3);
+        var boardBuilder3x3 = MNKRuleset.CreateBoardBuilder(3, 3);
         
-        var state = new GameState<TicTacToePlayAction>(
+        var state = new GameState<MNKPlayAction>(
             (new[] { 'X', 'O' }).ToPlayersArray(),
-            new TicTacToeTemplate([ boardBuilder3x3 ], isSynchronousMode: false, isKriegspiel: true),
+            new MNKTemplate([ boardBuilder3x3 ], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
 
@@ -93,20 +93,20 @@ public class BoardRendererTests {
 
     [Fact]
     public void DrawBoards_3x3WithActiveBoardAndOneMove_ReturnBoardsWithSpaceCodesGridString() {
-        var boardBuilder3x3 = TicTacToeRuleset.CreateBoardBuilder(3, 3);
+        var boardBuilder3x3 = MNKRuleset.CreateBoardBuilder(3, 3);
         
-        var state = new GameState<TicTacToePlayAction>(
+        var state = new GameState<MNKPlayAction>(
             (new[] { 'X', 'O' }).ToPlayersArray(),
-            new TicTacToeTemplate([ boardBuilder3x3 ], isSynchronousMode: false, isKriegspiel: true),
+            new MNKTemplate([ boardBuilder3x3 ], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
 
         var currentPlayer = new Player("X");
-        state.Enqueue(new TicTacToePlayAction(0, 1, 1, currentPlayer));
+        state.Enqueue(new MNKPlayAction(0, 1, 1, currentPlayer));
         state.PlayManager.EndTurn(currentPlayer, out var _);
         
         var otherPlayer = new Player("O");
-        state.Enqueue(new TicTacToePlayAction(0, 0, 0, otherPlayer));
+        state.Enqueue(new MNKPlayAction(0, 0, 0, otherPlayer));
         state.PlayManager.EndTurn(otherPlayer, out var _);
         state.PlayManager.EndRound(out var _);
 
@@ -130,10 +130,10 @@ public class BoardRendererTests {
 
     [Fact]
     public void DrawBoards_30x30_ReturnsBlankBoardGridString() {
-        var boardBuilder = TicTacToeRuleset.CreateBoardBuilder(30, 30);
-        var state = new GameState<TicTacToePlayAction>(
+        var boardBuilder = MNKRuleset.CreateBoardBuilder(30, 30);
+        var state = new GameState<MNKPlayAction>(
             (new[] { 'X', 'O' }).ToPlayersArray(),
-            new TicTacToeTemplate([ boardBuilder ], isSynchronousMode: false, isKriegspiel: true),
+            new MNKTemplate([ boardBuilder ], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
         
@@ -212,10 +212,10 @@ public class BoardRendererTests {
 
     [Fact]
     public void DrawBoards_30x30WithActiveBoard_ReturnBoardsWithSpaceCodesGridString() {
-        var boardBuilder = TicTacToeRuleset.CreateBoardBuilder(30, 30);
-        var state = new GameState<TicTacToePlayAction>(
+        var boardBuilder = MNKRuleset.CreateBoardBuilder(30, 30);
+        var state = new GameState<MNKPlayAction>(
             (new[] { 'X', 'O' }).ToPlayersArray(),
-            new TicTacToeTemplate([ boardBuilder ], isSynchronousMode: false, isKriegspiel: true),
+            new MNKTemplate([ boardBuilder ], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
         
@@ -294,11 +294,11 @@ public class BoardRendererTests {
 
     [Fact]
     public void DrawBoards_3x3MultipleBoardsWithWrapping_ReturnWrappedBoardGridString() {
-        var boardBuilder3x3 = TicTacToeRuleset.CreateBoardBuilder(3, 3);
+        var boardBuilder3x3 = MNKRuleset.CreateBoardBuilder(3, 3);
         
-        var state = new GameState<TicTacToePlayAction>(
+        var state = new GameState<MNKPlayAction>(
             (new[] { 'X', 'O' }).ToPlayersArray(),
-            new TicTacToeTemplate([ boardBuilder3x3, boardBuilder3x3, boardBuilder3x3 ], isSynchronousMode: false, isKriegspiel: true),
+            new MNKTemplate([ boardBuilder3x3, boardBuilder3x3, boardBuilder3x3 ], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
 
@@ -330,11 +330,11 @@ public class BoardRendererTests {
 
     [Fact]
     public void DrawBoards_3x3MultipleBoardsWithNarrowWrapping_ReturnWrappedBoardGridString() {
-        var boardBuilder3x3 = TicTacToeRuleset.CreateBoardBuilder(3, 3);
+        var boardBuilder3x3 = MNKRuleset.CreateBoardBuilder(3, 3);
         
-        var state = new GameState<TicTacToePlayAction>(
+        var state = new GameState<MNKPlayAction>(
             (new[] { 'X', 'O' }).ToPlayersArray(),
-            new TicTacToeTemplate([ boardBuilder3x3, boardBuilder3x3, boardBuilder3x3 ], isSynchronousMode: false, isKriegspiel: true),
+            new MNKTemplate([ boardBuilder3x3, boardBuilder3x3, boardBuilder3x3 ], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
 
@@ -374,11 +374,11 @@ public class BoardRendererTests {
 
     [Fact]
     public void DrawBoards_3x3MultipleBoardsWithActiveBoard_ReturnBoardsWithSpaceCodesGridString() {
-        var boardBuilder3x3 = TicTacToeRuleset.CreateBoardBuilder(3, 3);
+        var boardBuilder3x3 = MNKRuleset.CreateBoardBuilder(3, 3);
         
-        var state = new GameState<TicTacToePlayAction>(
+        var state = new GameState<MNKPlayAction>(
             (new[] { 'X', 'O' }).ToPlayersArray(),
-            new TicTacToeTemplate([ boardBuilder3x3, boardBuilder3x3, boardBuilder3x3 ], isSynchronousMode: false, isKriegspiel: true),
+            new MNKTemplate([ boardBuilder3x3, boardBuilder3x3, boardBuilder3x3 ], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
 

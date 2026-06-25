@@ -1,18 +1,18 @@
 using KriegspielTicTacToe.Model.Template;
 
-namespace KriegspielTicTacToe.Model.TicTacToe;
+namespace KriegspielTicTacToe.Model.MNKGame;
 
 /// <summary>
-/// Represents a game type configuration including board builders and play mode settings.
+/// Represents a game type configuration including board builders and play mode settings for an MNK game such as tic tac toe.  <see href="https://en.wikipedia.org/wiki/M,n,k-game">WP: MNK Game</see>
 /// </summary>
-public record TicTacToeTemplate
+public record MNKTemplate
 : GameTemplate {
     #region constructors
-    public TicTacToeTemplate() : base() {
+    public MNKTemplate() : base() {
         BoardBuilders = [];
     }
 
-    public TicTacToeTemplate(
+    public MNKTemplate(
         string commandName,
         string description,
         IEnumerable<BoardBuilder> boardBuilders,
@@ -23,7 +23,7 @@ public record TicTacToeTemplate
         Description = description;
     }
 
-    public TicTacToeTemplate(
+    public MNKTemplate(
         IEnumerable<BoardBuilder> boardBuilders,
         bool isKriegspiel,
         bool isSynchronousMode

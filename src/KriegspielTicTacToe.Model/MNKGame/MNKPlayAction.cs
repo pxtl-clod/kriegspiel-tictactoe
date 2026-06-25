@@ -2,15 +2,18 @@ using System.ComponentModel.DataAnnotations;
 using OneOf;
 using OneOf.Types;
 
-namespace KriegspielTicTacToe.Model.TicTacToe;
+namespace KriegspielTicTacToe.Model.MNKGame;
 
-public record TicTacToePlayAction
+/// <summary>
+/// A play action for an MNK game such as tic tac toe.  <see href="https://en.wikipedia.org/wiki/M,n,k-game">WP: MNK Game</see>
+/// </summary>
+public record MNKPlayAction
 : PlayAction {
     [Obsolete("Default constructor is only used for deserialization.")]
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-	public TicTacToePlayAction() : base() { }
+	public MNKPlayAction() : base() { }
 #pragma warning restore CS8618
-	public TicTacToePlayAction(
+	public MNKPlayAction(
         sbyte boardIndex,
         sbyte col,
         sbyte row,
@@ -45,7 +48,7 @@ public record TicTacToePlayAction
         => GetBoard(gameState).Spaces[Col, Row];
 
 	public override bool IsActionCollision(PlayAction otherAction)
-    => otherAction is TicTacToePlayAction otherTicTacToeAction 
+    => otherAction is MNKPlayAction otherTicTacToeAction 
         ? BoardIndex == otherTicTacToeAction.BoardIndex
             && Col == otherTicTacToeAction.Col
             && Row == otherTicTacToeAction.Row
@@ -79,14 +82,14 @@ public record TicTacToePlayAction
         space.MakeKnownToPlayer(Player);
 	}
 
-    public static TicTacToePlayAction Create(
+    public static MNKPlayAction Create(
         IGameState gameState,
         sbyte boardIndex,
         string spaceName,
         Player player
     ) => Create(gameState, boardIndex, int.Parse(spaceName), player);
         
-    public static TicTacToePlayAction Create(
+    public static MNKPlayAction Create(
         IGameState gameState,
         sbyte boardIndex,
         int spaceNameAsInt,
@@ -97,7 +100,7 @@ public record TicTacToePlayAction
         }
         var board = gameState.Boards[boardIndex];
         if (board.TryGetCoordinatesFromSpaceNameAsInt(spaceNameAsInt, out var col, out var row)) {
-            return new TicTacToePlayAction(boardIndex, col, row, player);
+            return new MNKPlayAction(boardIndex, col, row, player);
         } else {
             throw new KeyNotFoundException("That is not a valid space name for this board.");
         }

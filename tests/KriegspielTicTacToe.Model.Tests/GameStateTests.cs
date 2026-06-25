@@ -3,9 +3,9 @@ namespace KriegspielTicTacToe.Model.Tests;
 public class GameStateTests {
     [Fact]
     public void Constructor_EmptyBoards() {
-        var state = new GameState<TicTacToePlayAction>(
+        var state = new GameState<MNKPlayAction>(
             (new[] { 'X', 'O' }).ToPlayersArray(),
-            new TicTacToeTemplate(Array.Empty<BoardBuilder>(), isSynchronousMode: false, isKriegspiel: true),
+            new MNKTemplate(Array.Empty<BoardBuilder>(), isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
         state.Boards.Should().BeEmpty();

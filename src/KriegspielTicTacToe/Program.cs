@@ -13,7 +13,7 @@ namespace KriegspielTicTacToe;
 public class Program {
     static FileInfo? StateFilePath { get; set; }
     static string? JoinAsPlayer { get; set; }
-    static GameState<TicTacToePlayAction>? GameState { get; set; } = null;
+    static GameState<MNKPlayAction>? GameState { get; set; } = null;
 
     public static int Main(string[] args) {
         var gameCommand = new Command("game", "Start a new game using a pre-defined game template.") {
@@ -59,13 +59,13 @@ public class Program {
                             boardBuilders[i] = new BoardBuilder(
                                 size!.Value,
                                 size!.Value,
-                                new TicTacToeRuleset(scoringLength, isBoardDoneWhenScored)
+                                new MNKRuleset(scoringLength, isBoardDoneWhenScored)
                             );
                         }
 
-                        GameState = new GameState<TicTacToePlayAction>(
+                        GameState = new GameState<MNKPlayAction>(
                             players,
-                            new TicTacToeTemplate(boardBuilders, isKriegspiel: isKriegspiel, isSynchronousMode: isSynchronousMode),
+                            new MNKTemplate(boardBuilders, isKriegspiel: isKriegspiel, isSynchronousMode: isSynchronousMode),
                             isRandomPlayerOrder: isRandomPlayerOrder
                         );
                         return parseResult.Errors.Count;
@@ -92,7 +92,7 @@ public class Program {
                     Action = new CommandHandler(parseResult => {
                         ParseRootOptions(parseResult); 
                         ParsePlayerListOptions(parseResult, out var players, out bool isRandomPlayerOrder);
-                        GameState = new GameState<TicTacToePlayAction>(players, template, isRandomPlayerOrder);
+                        GameState = new GameState<MNKPlayAction>(players, template, isRandomPlayerOrder);
                         return parseResult.Errors.Count;
                     })
                 }

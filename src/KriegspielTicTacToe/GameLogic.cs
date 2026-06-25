@@ -10,7 +10,7 @@ namespace KriegspielTicTacToe;
 internal static class GameLogic {
     public static void RunGame(
         FileInfo sharedStateFilePath,
-        GameState<TicTacToePlayAction> state,
+        GameState<MNKPlayAction> state,
         OneOf<Player, LocalHotseatGame> joinAsPlayer
     ) {
         StateStorage.SaveState(state, sharedStateFilePath.FullName);
@@ -111,7 +111,7 @@ internal static class GameLogic {
         sharedStateFilePath.Delete();
     }
 
-    private static bool DoPlayerTurnLoop(GameState<TicTacToePlayAction> state, Player currentPlayer, string sharedStateFilePath) {
+    private static bool DoPlayerTurnLoop(GameState<MNKPlayAction> state, Player currentPlayer, string sharedStateFilePath) {
         var currentPlayerIsDoneTurn = false;
         while (!currentPlayerIsDoneTurn)
         {
@@ -185,7 +185,7 @@ internal static class GameLogic {
                                 currentPlayerIsDoneTurn = true;
                                 gameView.ResignPlayer();
                             } else {
-                                var playAction = TicTacToePlayAction.Create(state, boardIndex, result.Value, currentPlayer);
+                                var playAction = MNKPlayAction.Create(state, boardIndex, result.Value, currentPlayer);
                                 playAction.Attempt(state).Switch(
                                     isLegalToQueue => {
                                         state.Enqueue(playAction);

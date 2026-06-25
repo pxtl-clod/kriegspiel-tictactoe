@@ -253,9 +253,9 @@ public class ModelToCommandNameUtilityTests {
     [Fact]
     public void GetSpaceCommandName_Empty3x3BoardYourTurnIsAsExpected() {
         var players = new Player[] {new ("X"), new ("O")};
-        var gameState = new GameState<TicTacToePlayAction>(
+        var gameState = new GameState<MNKPlayAction>(
             players,
-            new TicTacToeTemplate([TicTacToeRuleset.CreateBoardBuilder(3, 3), TicTacToeRuleset.CreateBoardBuilder(3, 3)], isSynchronousMode: false, isKriegspiel: true),
+            new MNKTemplate([MNKRuleset.CreateBoardBuilder(3, 3), MNKRuleset.CreateBoardBuilder(3, 3)], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
 
@@ -276,9 +276,9 @@ public class ModelToCommandNameUtilityTests {
     [Fact]
     public void GetSpaceCommandName_Empty3x3BoardNotYourTurnIsBlank() {
         var players = new Player[] {new ("X"), new ("O")};
-        var gameState = new GameState<TicTacToePlayAction>(
+        var gameState = new GameState<MNKPlayAction>(
             players,
-            new TicTacToeTemplate([TicTacToeRuleset.CreateBoardBuilder(3, 3), TicTacToeRuleset.CreateBoardBuilder(3, 3)], isSynchronousMode: false, isKriegspiel: true),
+            new MNKTemplate([MNKRuleset.CreateBoardBuilder(3, 3), MNKRuleset.CreateBoardBuilder(3, 3)], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
 
@@ -295,9 +295,9 @@ public class ModelToCommandNameUtilityTests {
     [Fact]
     public void GetSpaceCommandName_Empty3x3BoardYourTurnWrongBoardIsBlank() {
         var players = new Player[] {new ("X"), new ("O")};
-        var gameState = new GameState<TicTacToePlayAction>(
+        var gameState = new GameState<MNKPlayAction>(
             players,
-            new TicTacToeTemplate([TicTacToeRuleset.CreateBoardBuilder(3, 3), TicTacToeRuleset.CreateBoardBuilder(3, 3)], isSynchronousMode: false, isKriegspiel: true),
+            new MNKTemplate([MNKRuleset.CreateBoardBuilder(3, 3), MNKRuleset.CreateBoardBuilder(3, 3)], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
 
@@ -316,15 +316,15 @@ public class ModelToCommandNameUtilityTests {
     [Fact]
     public void GetSpaceCommandName_SecondRound3x3BoardYourTurnIsAsExpected() {
         var players = new Player[] {new ("X"), new ("O")};
-        var gameState = new GameState<TicTacToePlayAction>(
+        var gameState = new GameState<MNKPlayAction>(
             players,
-            new TicTacToeTemplate([TicTacToeRuleset.CreateBoardBuilder(3, 3)], isSynchronousMode: false, isKriegspiel: true),
+            new MNKTemplate([MNKRuleset.CreateBoardBuilder(3, 3)], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
 
-        gameState.Enqueue(new TicTacToePlayAction(0, 1, 1, players[0]));
+        gameState.Enqueue(new MNKPlayAction(0, 1, 1, players[0]));
         gameState.PlayManager.EndTurn(players[0], out _);
-        gameState.Enqueue(new TicTacToePlayAction(0, 1, 1, players[1]));
+        gameState.Enqueue(new MNKPlayAction(0, 1, 1, players[1]));
         gameState.PlayManager.EndTurn(players[1], out _);
         gameState.PlayManager.EndRound(out _);
 
@@ -347,13 +347,13 @@ public class ModelToCommandNameUtilityTests {
         var players = new Player[] {new ("X"), new ("O")};
         var playerX = players[0];
         var playerO = players[1];
-        var gameState = new GameState<TicTacToePlayAction>(
+        var gameState = new GameState<MNKPlayAction>(
             players,
-            new TicTacToeTemplate([TicTacToeRuleset.CreateBoardBuilder(3, 3)], isSynchronousMode: false, isKriegspiel: false),
+            new MNKTemplate([MNKRuleset.CreateBoardBuilder(3, 3)], isSynchronousMode: false, isKriegspiel: false),
             isRandomPlayerOrder: false
         );
 
-        gameState.Enqueue(new TicTacToePlayAction(0, 1, 1, playerX));
+        gameState.Enqueue(new MNKPlayAction(0, 1, 1, playerX));
         gameState.PlayManager.EndTurn(playerX, out _);
 
         var expected = new string[3,3] {
@@ -373,15 +373,15 @@ public class ModelToCommandNameUtilityTests {
     [Fact]
     public void GetSpaceCommandName_MoveSameSpaceCanSeeRevealedSpace() {
         var players = new Player[] {new ("X"), new ("O")};
-        var gameState = new GameState<TicTacToePlayAction>(
+        var gameState = new GameState<MNKPlayAction>(
             players,
-            new TicTacToeTemplate([TicTacToeRuleset.CreateBoardBuilder(3, 3)], isSynchronousMode: false, isKriegspiel: true),
+            new MNKTemplate([MNKRuleset.CreateBoardBuilder(3, 3)], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
         //round 1
-        gameState.Enqueue(new TicTacToePlayAction(0, 1, 1, players[0]));
+        gameState.Enqueue(new MNKPlayAction(0, 1, 1, players[0]));
         gameState.PlayManager.EndTurn(players[0], out _);
-        gameState.Enqueue(new TicTacToePlayAction(0, 1, 1, players[1]));
+        gameState.Enqueue(new MNKPlayAction(0, 1, 1, players[1]));
         gameState.PlayManager.EndTurn(players[1], out _);
         gameState.PlayManager.EndRound(out _);
 
@@ -393,15 +393,15 @@ public class ModelToCommandNameUtilityTests {
     [Fact]
     public void GetSpaceCommandName_MoveDifferentSpaceCantSeeOtherPlayer() {
         var players = new Player[] {new ("X"), new ("O")};
-        var gameState = new GameState<TicTacToePlayAction>(
+        var gameState = new GameState<MNKPlayAction>(
             players,
-            new TicTacToeTemplate([TicTacToeRuleset.CreateBoardBuilder(3, 3)], isSynchronousMode: false, isKriegspiel: true),
+            new MNKTemplate([MNKRuleset.CreateBoardBuilder(3, 3)], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
         //round 1
-        gameState.Enqueue(new TicTacToePlayAction(0, 1, 1, players[0]));
+        gameState.Enqueue(new MNKPlayAction(0, 1, 1, players[0]));
         gameState.PlayManager.EndTurn(players[0], out _);
-        gameState.Enqueue(new TicTacToePlayAction(0, 0, 0, players[1]));
+        gameState.Enqueue(new MNKPlayAction(0, 0, 0, players[1]));
         gameState.PlayManager.EndTurn(players[1], out _);
         gameState.PlayManager.EndRound(out _);
 
@@ -413,23 +413,23 @@ public class ModelToCommandNameUtilityTests {
     [Fact]
     public void GetSpaceCommandName_ThirdRound3x3SpectatorViewIsAsExpected() {
         var players = new Player[] {new ("X"), new ("O")};
-        var gameState = new GameState<TicTacToePlayAction>(
+        var gameState = new GameState<MNKPlayAction>(
             players,
-            new TicTacToeTemplate([TicTacToeRuleset.CreateBoardBuilder(3, 3)], isSynchronousMode: false, isKriegspiel: true),
+            new MNKTemplate([MNKRuleset.CreateBoardBuilder(3, 3)], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
 
         //round 1
-        gameState.Enqueue(new TicTacToePlayAction(0, 1, 1, players[0]));
+        gameState.Enqueue(new MNKPlayAction(0, 1, 1, players[0]));
         gameState.PlayManager.EndTurn(players[0], out _);
-        gameState.Enqueue(new TicTacToePlayAction(0, 1, 1, players[1]));
+        gameState.Enqueue(new MNKPlayAction(0, 1, 1, players[1]));
         gameState.PlayManager.EndTurn(players[1], out _);
         gameState.PlayManager.EndRound(out _);
 
         //round 2
-        gameState.Enqueue(new TicTacToePlayAction(0, 0, 0, players[0]));
+        gameState.Enqueue(new MNKPlayAction(0, 0, 0, players[0]));
         gameState.PlayManager.EndTurn(players[0], out _);
-        gameState.Enqueue(new TicTacToePlayAction(0, 2, 2, players[1]));
+        gameState.Enqueue(new MNKPlayAction(0, 2, 2, players[1]));
         gameState.PlayManager.EndTurn(players[1], out _);
         gameState.PlayManager.EndRound(out _);
 
@@ -450,9 +450,9 @@ public class ModelToCommandNameUtilityTests {
     [Fact]
     public void GetSpaceCommandName_Empty4x4BoardYourTurnIsAsExpected() {
         var players = new Player[] {new ("X"), new ("O")};
-        var gameState = new GameState<TicTacToePlayAction>(
+        var gameState = new GameState<MNKPlayAction>(
             players,
-            new TicTacToeTemplate([TicTacToeRuleset.CreateBoardBuilder(4, 4)], isSynchronousMode: false, isKriegspiel: true),
+            new MNKTemplate([MNKRuleset.CreateBoardBuilder(4, 4)], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
 

@@ -1,9 +1,12 @@
 using OneOf;
 using OneOf.Types;
 
-namespace KriegspielTicTacToe.Model.TicTacToe;
+namespace KriegspielTicTacToe.Model.MNKGame;
 
-public record TicTacToeRuleset(sbyte? ScoringLength = null, bool IsBoardDoneWhenScored = false)
+/// <summary>
+/// A board ruleset for an MNK game such as tic tac toe.  <see href="https://en.wikipedia.org/wiki/M,n,k-game">WP: MNK Game</see>
+/// </summary>
+public record MNKRuleset(sbyte? ScoringLength = null, bool IsBoardDoneWhenScored = false)
 : BoardRuleset() {
     public static Template.BoardBuilder CreateBoardBuilder(
         sbyte Width,
@@ -14,7 +17,7 @@ public record TicTacToeRuleset(sbyte? ScoringLength = null, bool IsBoardDoneWhen
         return new Template.BoardBuilder(
             Width,
             Height,
-            new TicTacToeRuleset(ScoringLength, IsBoardDoneWhenScored)
+            new MNKRuleset(ScoringLength, IsBoardDoneWhenScored)
         ) { };
     }
 

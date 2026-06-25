@@ -1,6 +1,6 @@
 using OneOf;
 using OneOf.Types;
-using KriegspielTicTacToe.Model.Template;
+using PxtlCa.SystemCollectionsExtensions;
 
 namespace KriegspielTicTacToe;
 
@@ -32,6 +32,7 @@ internal static class ConsoleLoop {
                     bool isDoneWaiting = false;
                     Console.Out.Write("Waiting for your turn.");
 
+                    //wait loop.
                     while (!isDoneWaiting) {
                         state = StateStorage.LoadState(sharedStateFilePath.FullName);
                         if (state.PlayManager.PlayersAvailableForTurn.Contains(player)

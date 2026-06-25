@@ -9,7 +9,7 @@ public class KnownTypesBinder : Newtonsoft.Json.Serialization.ISerializationBind
     public static KnownTypesBinder Instance {get;} = new KnownTypesBinder();
     public Dictionary<string, Type> KnownTypes {get;} = new Type[] {
         typeof(BoardBuilder),
-        typeof(GameRuleset),
+        typeof(BoardRuleset),
         typeof(GameState<TicTacToePlayAction>),
         typeof(TicTacToeTemplate),
         typeof(TicTacToePlayAction),

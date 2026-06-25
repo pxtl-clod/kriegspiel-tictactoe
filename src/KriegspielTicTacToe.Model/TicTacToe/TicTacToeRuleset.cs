@@ -4,7 +4,7 @@ using OneOf.Types;
 namespace KriegspielTicTacToe.Model.TicTacToe;
 
 public record TicTacToeRuleset(sbyte? ScoringLength = null, bool IsBoardDoneWhenScored = false)
-: GameRuleset() {
+: BoardRuleset() {
     public static Template.BoardBuilder CreateBoardBuilder(
         sbyte Width,
         sbyte Height,
@@ -34,7 +34,7 @@ public record TicTacToeRuleset(sbyte? ScoringLength = null, bool IsBoardDoneWhen
             diagonalScoringLength = ScoringLength.Value;
         }
             
-        foreach (var spaceEnumerator in board.BoardAsEnumerable()) {
+        foreach (var spaceEnumerator in board.BoardAsSpaceViewEnumerable()) {
             string? lineOwnerMark = spaceEnumerator.Mark;
             if(lineOwnerMark != null) {
                 var lineOwnerPlayer = new Player(lineOwnerMark);

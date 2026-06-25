@@ -8,23 +8,34 @@ public record GameState<TAction> : IGameState
 where TAction : PlayAction {
     #region Constructors
     public GameState() { 
-        // will probably get removed when members are initialized.
+        // unusable default values will probably get removed when members are
+        // initialized.
         PlayManager = new RoundRobinPlayManager([]);
         Boards = [];
     }
 
     public GameState(
         Player[] players,
-        IGameTemplate gameType,
+        IGameTemplate gameTemplate,
         bool isRandomPlayerOrder
     ) {
         if(isRandomPlayerOrder) {
             Random.Shared.Shuffle(players);
         }
 
-        PlayManager = gameType.PlayManagerFactory.Create(players);
-        Boards = gameType.ConstructBoards();
+        PlayManager = gameTemplate.PlayManagerFactory.Create(players);
+        Boards = gameTemplate.ConstructBoards();
         Initialize();
+        if (!gameTemplate.LegalPlayerCounts.Contains(players.Length)) {
+            throw new ArgumentException(
+                "Cannot start game. This game only supports the following player-counts: "
+                    + string.Join(", ", gameTemplate.LegalPlayerCounts)
+                    + Environment.NewLine
+                    + $"You have provided {players.Length} player(s).",
+                nameof(players)
+            );
+        }
+        gameTemplate.InitializeGame(this);
     }
     #endregion
 

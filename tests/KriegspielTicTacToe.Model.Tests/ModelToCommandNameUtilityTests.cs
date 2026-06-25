@@ -255,7 +255,7 @@ public class ModelToCommandNameUtilityTests {
         var players = new Player[] {new ("X"), new ("O")};
         var gameState = new GameState<TicTacToePlayAction>(
             players,
-            new TicTacToeTemplate([TicTacToeRuleset.CreateBoardBuilder(3, 3), TicTacToeRuleset.CreateBoardBuilder(3, 3)], isSynchronousMode: false),
+            new TicTacToeTemplate([TicTacToeRuleset.CreateBoardBuilder(3, 3), TicTacToeRuleset.CreateBoardBuilder(3, 3)], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
 
@@ -278,7 +278,7 @@ public class ModelToCommandNameUtilityTests {
         var players = new Player[] {new ("X"), new ("O")};
         var gameState = new GameState<TicTacToePlayAction>(
             players,
-            new TicTacToeTemplate([TicTacToeRuleset.CreateBoardBuilder(3, 3), TicTacToeRuleset.CreateBoardBuilder(3, 3)], isSynchronousMode: false),
+            new TicTacToeTemplate([TicTacToeRuleset.CreateBoardBuilder(3, 3), TicTacToeRuleset.CreateBoardBuilder(3, 3)], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
 
@@ -297,7 +297,7 @@ public class ModelToCommandNameUtilityTests {
         var players = new Player[] {new ("X"), new ("O")};
         var gameState = new GameState<TicTacToePlayAction>(
             players,
-            new TicTacToeTemplate([TicTacToeRuleset.CreateBoardBuilder(3, 3), TicTacToeRuleset.CreateBoardBuilder(3, 3)], isSynchronousMode: false),
+            new TicTacToeTemplate([TicTacToeRuleset.CreateBoardBuilder(3, 3), TicTacToeRuleset.CreateBoardBuilder(3, 3)], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
 
@@ -318,7 +318,7 @@ public class ModelToCommandNameUtilityTests {
         var players = new Player[] {new ("X"), new ("O")};
         var gameState = new GameState<TicTacToePlayAction>(
             players,
-            new TicTacToeTemplate([TicTacToeRuleset.CreateBoardBuilder(3, 3)], isSynchronousMode: false),
+            new TicTacToeTemplate([TicTacToeRuleset.CreateBoardBuilder(3, 3)], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
 
@@ -343,11 +343,39 @@ public class ModelToCommandNameUtilityTests {
     }
 
     [Fact]
+    public void GetSpaceCommandName_NonKriegspielModeCanSeeOtherPlayer() {
+        var players = new Player[] {new ("X"), new ("O")};
+        var playerX = players[0];
+        var playerO = players[1];
+        var gameState = new GameState<TicTacToePlayAction>(
+            players,
+            new TicTacToeTemplate([TicTacToeRuleset.CreateBoardBuilder(3, 3)], isSynchronousMode: false, isKriegspiel: false),
+            isRandomPlayerOrder: false
+        );
+
+        gameState.Enqueue(new TicTacToePlayAction(0, 1, 1, playerX));
+        gameState.PlayManager.EndTurn(playerX, out _);
+
+        var expected = new string[3,3] {
+            {"7", "8", "9"},
+            {"4", "X", "6"},
+            {"1", "2", "3"}
+        };
+
+        for(sbyte row = 0; row < expected.GetLength(0); row += 1) {
+            for(sbyte col = 0; col < expected.GetLength(0); col += 1) {
+                var actual = ModelToCommandNameUtility.GetSpaceCommandName(new GameView(gameState, playerO), 0, 0, col, row);
+                actual.Should().Be(expected[row, col]);
+            }
+        }
+    }
+
+    [Fact]
     public void GetSpaceCommandName_MoveSameSpaceCanSeeRevealedSpace() {
         var players = new Player[] {new ("X"), new ("O")};
         var gameState = new GameState<TicTacToePlayAction>(
             players,
-            new TicTacToeTemplate([TicTacToeRuleset.CreateBoardBuilder(3, 3)], isSynchronousMode: false),
+            new TicTacToeTemplate([TicTacToeRuleset.CreateBoardBuilder(3, 3)], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
         //round 1
@@ -367,7 +395,7 @@ public class ModelToCommandNameUtilityTests {
         var players = new Player[] {new ("X"), new ("O")};
         var gameState = new GameState<TicTacToePlayAction>(
             players,
-            new TicTacToeTemplate([TicTacToeRuleset.CreateBoardBuilder(3, 3)], isSynchronousMode: false),
+            new TicTacToeTemplate([TicTacToeRuleset.CreateBoardBuilder(3, 3)], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
         //round 1
@@ -387,7 +415,7 @@ public class ModelToCommandNameUtilityTests {
         var players = new Player[] {new ("X"), new ("O")};
         var gameState = new GameState<TicTacToePlayAction>(
             players,
-            new TicTacToeTemplate([TicTacToeRuleset.CreateBoardBuilder(3, 3)], isSynchronousMode: false),
+            new TicTacToeTemplate([TicTacToeRuleset.CreateBoardBuilder(3, 3)], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
 
@@ -424,7 +452,7 @@ public class ModelToCommandNameUtilityTests {
         var players = new Player[] {new ("X"), new ("O")};
         var gameState = new GameState<TicTacToePlayAction>(
             players,
-            new TicTacToeTemplate([TicTacToeRuleset.CreateBoardBuilder(4, 4)], isSynchronousMode: false),
+            new TicTacToeTemplate([TicTacToeRuleset.CreateBoardBuilder(4, 4)], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
 

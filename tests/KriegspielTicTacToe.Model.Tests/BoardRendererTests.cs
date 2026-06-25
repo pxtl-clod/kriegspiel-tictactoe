@@ -8,7 +8,7 @@ public class BoardRendererTests {
         var boardBuilder = TicTacToeRuleset.CreateBoardBuilder(3, 3);
         var state = new GameState<TicTacToePlayAction>(
             new[] { 'X', 'O' }.ToPlayersArray(),
-            new TicTacToeTemplate([ boardBuilder ], isSynchronousMode: false),
+            new TicTacToeTemplate([ boardBuilder ], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
         
@@ -36,7 +36,7 @@ public class BoardRendererTests {
         var boardBuilder = TicTacToeRuleset.CreateBoardBuilder(3, 3);
         var state = new GameState<TicTacToePlayAction>(
             (new[] { 'X', 'O' }).ToPlayersArray(),
-            new TicTacToeTemplate([ boardBuilder ], isSynchronousMode: false),
+            new TicTacToeTemplate([ boardBuilder ], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
         
@@ -67,7 +67,7 @@ public class BoardRendererTests {
         
         var state = new GameState<TicTacToePlayAction>(
             (new[] { 'X', 'O' }).ToPlayersArray(),
-            new TicTacToeTemplate([ boardBuilder3x3 ], isSynchronousMode: false),
+            new TicTacToeTemplate([ boardBuilder3x3 ], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
 
@@ -97,7 +97,7 @@ public class BoardRendererTests {
         
         var state = new GameState<TicTacToePlayAction>(
             (new[] { 'X', 'O' }).ToPlayersArray(),
-            new TicTacToeTemplate([ boardBuilder3x3 ], isSynchronousMode: false),
+            new TicTacToeTemplate([ boardBuilder3x3 ], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
 
@@ -133,7 +133,7 @@ public class BoardRendererTests {
         var boardBuilder = TicTacToeRuleset.CreateBoardBuilder(30, 30);
         var state = new GameState<TicTacToePlayAction>(
             (new[] { 'X', 'O' }).ToPlayersArray(),
-            new TicTacToeTemplate([ boardBuilder ], isSynchronousMode: false),
+            new TicTacToeTemplate([ boardBuilder ], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
         
@@ -215,7 +215,7 @@ public class BoardRendererTests {
         var boardBuilder = TicTacToeRuleset.CreateBoardBuilder(30, 30);
         var state = new GameState<TicTacToePlayAction>(
             (new[] { 'X', 'O' }).ToPlayersArray(),
-            new TicTacToeTemplate([ boardBuilder ], isSynchronousMode: false),
+            new TicTacToeTemplate([ boardBuilder ], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
         
@@ -298,7 +298,7 @@ public class BoardRendererTests {
         
         var state = new GameState<TicTacToePlayAction>(
             (new[] { 'X', 'O' }).ToPlayersArray(),
-            new TicTacToeTemplate([ boardBuilder3x3, boardBuilder3x3, boardBuilder3x3 ], isSynchronousMode: false),
+            new TicTacToeTemplate([ boardBuilder3x3, boardBuilder3x3, boardBuilder3x3 ], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
 
@@ -334,14 +334,14 @@ public class BoardRendererTests {
         
         var state = new GameState<TicTacToePlayAction>(
             (new[] { 'X', 'O' }).ToPlayersArray(),
-            new TicTacToeTemplate([ boardBuilder3x3, boardBuilder3x3, boardBuilder3x3 ], isSynchronousMode: false),
+            new TicTacToeTemplate([ boardBuilder3x3, boardBuilder3x3, boardBuilder3x3 ], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
 
         var currentPlayer = new Player("X");
         
         // 0 means wrap as tight as possible.
-        var actual = BoardRenderer.DrawBoards(new GameView(state, currentPlayer), activeBoardIndex: null, maxRenderWidth:0);
+        var actual = BoardRenderer.DrawBoards(new GameView(state, currentPlayer), activeBoardIndex: null, maxRenderWidth: 0);
         var expected = @"
  1┌───┬───┬───┐
   │   │   │   │
@@ -378,14 +378,14 @@ public class BoardRendererTests {
         
         var state = new GameState<TicTacToePlayAction>(
             (new[] { 'X', 'O' }).ToPlayersArray(),
-            new TicTacToeTemplate([ boardBuilder3x3, boardBuilder3x3, boardBuilder3x3 ], isSynchronousMode: false),
+            new TicTacToeTemplate([ boardBuilder3x3, boardBuilder3x3, boardBuilder3x3 ], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
 
         var currentPlayer = new Player("X");
         sbyte activeBoardIndex = 1; //2nd board
 
-        var actual = BoardRenderer.DrawBoards(new GameView(state, currentPlayer), activeBoardIndex, maxRenderWidth:999999);
+        var actual = BoardRenderer.DrawBoards(new GameView(state, currentPlayer), activeBoardIndex, maxRenderWidth: 999999);
 
         var expected = @"
  1┌───┬───┬───┐ 2┌───┬───┬───┐ 3┌───┬───┬───┐

@@ -58,14 +58,14 @@ public class BoardTests {
     [Fact]
     public void BoardAsEnumerable_ReturnsAllSpaces_ExpectedCount() {
         var board = new Board(3, 3, new TicTacToeRuleset());
-        var spaces = board.BoardAsEnumerable().ToList();
+        var spaces = board.BoardAsSpaceViewEnumerable().ToList();
         spaces.Count.Should().Be(9);
     }
 
     [Fact]
     public void BoardAsEnumerable_ReturnsAllSpaces_100x10() {
         var board = new Board(100, 10, new TicTacToeRuleset());
-        var spaces = board.BoardAsEnumerable().ToList();
+        var spaces = board.BoardAsSpaceViewEnumerable().ToList();
         spaces.Count.Should().Be(1000);
     }
     #endregion

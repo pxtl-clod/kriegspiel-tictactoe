@@ -18,8 +18,8 @@ public interface IBoard {
 	bool IsFull { get; }
 	bool IsDone { get; }
 
-	IEnumerable<SpaceView> BoardAsEnumerable(Player player);
-	IEnumerable<SpaceView> BoardAsEnumerable();
+	IEnumerable<SpaceView> BoardAsSpaceViewEnumerable(Player player);
+	IEnumerable<SpaceView> BoardAsSpaceViewEnumerable();
 	int GetSpaceNameAsInt(sbyte col, sbyte row);
 	bool TryGetCoordinatesFromSpaceNameAsInt(int spaceName, out sbyte resultCol, out sbyte resultRow);
 }

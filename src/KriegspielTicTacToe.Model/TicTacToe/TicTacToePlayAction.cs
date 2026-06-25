@@ -26,7 +26,7 @@ public record TicTacToePlayAction
     public sbyte Col {get;init;}
     [Required]
     public sbyte Row {get;init;}
-
+ 
 	public override void DoActionCollision(IGameState gameState) {
         if (GetBoard(gameState).IsDone) {
             return;
@@ -54,13 +54,14 @@ public record TicTacToePlayAction
 
 	public override OneOf<IsLegalToQueue, NewlyLearned, AlreadyPlayed> Attempt(IGameState gameState) {
         var space = gameState.Boards[BoardIndex].Spaces[Col, Row];
-        if (space.IsKnownToPlayer(Player)) {
+        if (space.Mark == null) {
+            space.MakeKnownToPlayer(Player);
+            return new IsLegalToQueue();
+        } else if (space.IsKnownToPlayer(Player)) {
             return new AlreadyPlayed();
-        } else if (space.Mark != null) {
+        } else {
             space.MakeKnownToPlayer(Player);
             return new NewlyLearned(space.Mark);
-        } else {
-            return new IsLegalToQueue();
         }
 	}
 

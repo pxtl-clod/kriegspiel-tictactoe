@@ -10,26 +10,10 @@ namespace KriegspielTicTacToe;
 internal static class GameLogic {
     public static void RunGame(
         FileInfo sharedStateFilePath,
-        bool doForceNewGame,
-        Player[] players,
-        IEnumerable<BoardBuilder> boardBuilders,
-        OneOf<Player, LocalHotseatGame> joinAsPlayer,
-        bool isRandomPlayerOrder,
-        bool isSynchronousMode
+        GameState<TicTacToePlayAction> state,
+        OneOf<Player, LocalHotseatGame> joinAsPlayer
     ) {
-        GameState<TicTacToePlayAction> state;
-        if(sharedStateFilePath.Exists && !doForceNewGame) {
-            state = StateStorage.LoadState(sharedStateFilePath.FullName);
-            Console.Out.WriteLine($"Loaded saved game!");
-        } else {
-            state = new GameState<TicTacToePlayAction>(
-                players,
-                new TicTacToeTemplate(boardBuilders, isSynchronousMode: isSynchronousMode), 
-                isRandomPlayerOrder: isRandomPlayerOrder
-            );
-            Console.Out.WriteLine("Starting new game!");
-            StateStorage.SaveState(state, sharedStateFilePath.FullName);
-        }
+        StateStorage.SaveState(state, sharedStateFilePath.FullName);
 
         Console.Out.WriteLine(joinAsPlayer.Match(
             player => $"Joining game-file '{sharedStateFilePath.FullName}' as player '{player}'.",
@@ -201,7 +185,7 @@ internal static class GameLogic {
                                 currentPlayerIsDoneTurn = true;
                                 gameView.ResignPlayer();
                             } else {
-                                var playAction = TicTacToePlayAction.Create(state, boardIndex, result.Value, result.Value);
+                                var playAction = TicTacToePlayAction.Create(state, boardIndex, result.Value, currentPlayer);
                                 playAction.Attempt(state).Switch(
                                     isLegalToQueue => {
                                         state.Enqueue(playAction);

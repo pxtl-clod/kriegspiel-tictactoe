@@ -17,7 +17,7 @@ public record Board
     /// replacing <see cref="Ruleset"> and <see cref="Spaces"/> members.
     /// </summary>
     public Board()
-    : this(1, 1, GameRuleset.Empty) { }
+    : this(1, 1, BoardRuleset.Empty) { }
 
     public Board(Template.BoardBuilder builder)
     : this(builder.Width, builder.Height, builder.Ruleset) { }
@@ -25,8 +25,8 @@ public record Board
     public Board(sbyte width, sbyte height)
     : this(width, height, null) { }
 
-    public Board(sbyte width, sbyte height, GameRuleset? ruleset) {
-        Ruleset = ruleset ?? GameRuleset.Empty;
+    public Board(sbyte width, sbyte height, BoardRuleset? ruleset) {
+        Ruleset = ruleset ?? BoardRuleset.Empty;
         Spaces = new Space[width, height];
         for (sbyte col = 0; col < ColumnCount; col += 1) {
             for (sbyte row = 0; row < RowCount; row += 1) {
@@ -35,7 +35,7 @@ public record Board
         }
     }
 
-    public Board(GameRuleset ruleset)
+    public Board(BoardRuleset ruleset)
     : this() {
         Ruleset = ruleset;
     }
@@ -46,7 +46,7 @@ public record Board
     [JsonProperty(ItemTypeNameHandling = TypeNameHandling.None, TypeNameHandling = TypeNameHandling.None)] //non-polymorphic
     public Space[,] Spaces { get; init; }
     [Required]
-    public GameRuleset Ruleset { get; init; }
+    public BoardRuleset Ruleset { get; init; }
     #endregion
 
     #region Methods
@@ -92,7 +92,7 @@ public record Board
     /// Get all of the spaces on the board as a big enumerable that you can
     /// foreach across.
     /// </summary>
-    public IEnumerable<SpaceView> BoardAsEnumerable(Player? player) {
+    public IEnumerable<SpaceView> BoardAsSpaceViewEnumerable(Player? player) {
         for (sbyte col = 0; col < Spaces.GetLength(0); col += 1) {
             for (sbyte row = 0; row < Spaces.GetLength(1); row += 1) {
                 yield return new SpaceView(Spaces[col, row], player, col, row);
@@ -100,11 +100,20 @@ public record Board
         }
     }
 
-    public IEnumerable<SpaceView> BoardAsEnumerable() => BoardAsEnumerable(player: null);
+    public IEnumerable<Space> BoardAsSpaceEnumerable() {
+        for (sbyte col = 0; col < Spaces.GetLength(0); col += 1) {
+            for (sbyte row = 0; row < Spaces.GetLength(1); row += 1) {
+                yield return Spaces[col, row];
+            }
+        }
+    }
+
+    public IEnumerable<SpaceView> BoardAsSpaceViewEnumerable()
+    => BoardAsSpaceViewEnumerable(player: null);
 
     [JsonIgnore()]
     public IEnumerable<string> SpaceNames
-    => BoardAsEnumerable()
+    => BoardAsSpaceViewEnumerable()
         .Select(s => GetSpaceNameAsInt(s.Col, s.Row).ToString());
     #endregion
 
@@ -142,7 +151,7 @@ public record Board
     /// </summary>
     [JsonIgnore()]
     public bool IsFull
-    => BoardAsEnumerable().All(s => s.Mark != null);
+    => BoardAsSpaceEnumerable().All(s => s.Mark != null);
 
     [JsonIgnore()]
     public virtual bool IsDone

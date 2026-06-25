@@ -14,7 +14,7 @@ public class StateUtilityTests {
         var boardBuilder3x3 = TicTacToeRuleset.CreateBoardBuilder(3, 3);
         IGameState expectedState = new GameState<TicTacToePlayAction>(
             new char[] { 'X', 'O' }.ToPlayersArray(),
-            new TicTacToeTemplate([boardBuilder3x3, boardBuilder3x3, boardBuilder3x3], isSynchronousMode: false),
+            new TicTacToeTemplate([boardBuilder3x3, boardBuilder3x3, boardBuilder3x3], isSynchronousMode: false, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
         var stateString = StateStorage.StateToString(expectedState);
@@ -31,7 +31,7 @@ public class StateUtilityTests {
         var playerO = players[1];
         var expectedState = new GameState<TicTacToePlayAction>(
             players,
-            new TicTacToeTemplate([boardBuilder3x3, boardBuilder3x3, boardBuilder3x3], isSynchronousMode: true),
+            new TicTacToeTemplate([boardBuilder3x3, boardBuilder3x3, boardBuilder3x3], isSynchronousMode: true, isKriegspiel: true),
             isRandomPlayerOrder: false
         );
 

@@ -6,14 +6,20 @@ using System.CommandLine;
 /// Command-line option definitions.
 /// </summary>
 internal static class Options {
+    static Options() {
+        StateFileOption.AcceptExistingOnly();
+    }
+
     public static Option<FileInfo> StateFileOption = new ("--file", "-f") {
         Description = "Path to the json file where gamestate is stored.  Will be resumed automatically if you kill the game (ctrl-C). " 
             + "Use a fileshare for network multiplayer.",
-        DefaultValueFactory = (ArgumentResult) => StateStorage.DefaultStateFilePath
+        DefaultValueFactory = (argumentResult) => StateStorage.DefaultStateFilePath,
+        Recursive = true,
     };
 
-    public static Option<bool> ForceNewGameOption = new ("--force", "-F") {
-        Description = "Force a new game instead of loading the game at the gamestate file.  Will replace gamestate file."
+    public static Option<string> JoinAsPlayerOption = new ("--join", "-j") {
+        Description = "Join as given player char mark. Must match a mark in players list. Hotseat mode if not provided.",
+        Recursive = true
     };
 
     public static Option<string[]> PlayersOption = new("--players", "-p") {
@@ -36,11 +42,13 @@ internal static class Options {
                 return result.Tokens.Select(t => t.Value).ToArray();
             }
         },
-        AllowMultipleArgumentsPerToken = true
+        Recursive = true,
+        AllowMultipleArgumentsPerToken = true,
     };
 
     public static Option<bool> RandomOption = new("--random", "-r") {
-        Description = "Randomize player order."
+        Description = "Randomize player order.",
+        Recursive = true
     };
 
     public static Option<sbyte?> SizeOption = new("--size", "-z") {
@@ -67,6 +75,10 @@ internal static class Options {
         Description = "If set, the the board is done and closed to new moves when a line is scored."
     };
 
+    public static Option<bool> IsKriegspiel = new ("--kriegspiel", "-k") {
+        Description = "If set, players can only see pieces they've placed or touched."
+    };
+
     public static Option<sbyte?> BoardsNumberOption = new ("--boards", "-b") {
         Description = "Number of boards.",
         DefaultValueFactory = result => 3,
@@ -79,10 +91,6 @@ internal static class Options {
             result.AddError("Boards must be a number from 1 to 9");
             return null;
         }
-    };
-
-    public static Option<string> JoinAsPlayerOption = new ("--join", "-j") {
-        Description = "Join as given player char mark. Must match a mark in players list. Hotseat mode if not provided."
     };
 
     public static Option<bool> SynchronousModeOption = new ("--synchronous", "-y") {

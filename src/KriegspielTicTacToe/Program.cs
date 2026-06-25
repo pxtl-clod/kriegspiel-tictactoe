@@ -2,76 +2,149 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using OneOf;
 using KriegspielTicTacToe.Model.Template;
+using System.CommandLine.Parsing;
+using Sundew.Base.Collections;
 
 namespace KriegspielTicTacToe;
 
 /// <summary>
 /// Application entry point.
 /// </summary>
-class Program {
+public class Program {
+    static FileInfo? StateFilePath { get; set; }
+    static string? JoinAsPlayer { get; set; }
+    static GameState<TicTacToePlayAction>? GameState { get; set; } = null;
+
     public static int Main(string[] args) {
-        var rootCommand = new RootCommand("This is a simple command-line implementation of Zach Weinersmith's proposed game 'Kriegspiel Tic Tac Toe'"){
-            Options.StateFileOption,
-            Options.ForceNewGameOption,
-            Options.PlayersOption,
-            Options.RandomOption,
-            Options.SizeOption,
-            Options.ScoringLengthOption,
-            Options.IsBoardDoneWhenScoredOption,
-            Options.BoardsNumberOption,
-            Options.JoinAsPlayerOption,
-            Options.SynchronousModeOption
+        var gameCommand = new Command("game", "Start a new game using a pre-defined game template.") {
+            Options = { //these are recursive options that will be inherited by subcommands.
+                Options.PlayersOption,
+                Options.RandomOption,
+            }
         };
 
-        rootCommand.SetAction((parseResult) => {
-                var file = parseResult.GetValue(Options.StateFileOption)!;
-                var doForceNewGame = parseResult.GetValue(Options.ForceNewGameOption);
-                var players = parseResult.GetValue(Options.PlayersOption)!;
-                var size = parseResult.GetValue(Options.SizeOption);
-                var boardsNumber = parseResult.GetValue(Options.BoardsNumberOption);
-                var scoringLength = parseResult.GetValue(Options.ScoringLengthOption);
-                var isBoardDoneWhenScored = parseResult.GetValue(Options.IsBoardDoneWhenScoredOption);
-                var joinAsPlayer = parseResult.GetValue(Options.JoinAsPlayerOption);
+        var rootCommand = new RootCommand("This is a command-line game that implements kriegspiel m,n,k-games such as Zach Weinersmith's 'Kriegspiel Tic Tac Toe'") {
+            Options = { //these are recursive options that will be inherited by subcommands.
+                Options.StateFileOption,
+                Options.JoinAsPlayerOption
+            }, // rootCommand has no Action.  This makes all child commands required.  Be nice if that was documented somewhere.
+            Subcommands = {
+                gameCommand,
+                new Command("custom") {
+                    Options = {
+                        Options.PlayersOption,
+                        Options.RandomOption,
 
-                var isRandomPlayer = parseResult.GetValue(Options.RandomOption);
-                var isSynchronousMode = parseResult.GetValue(Options.SynchronousModeOption);
+                        Options.SizeOption,
+                        Options.BoardsNumberOption,
+                        Options.ScoringLengthOption,
+                        Options.IsBoardDoneWhenScoredOption,
+                        Options.IsKriegspiel,
+                        Options.SynchronousModeOption
+                    },
 
-                var boardBuilders = new BoardBuilder[boardsNumber!.Value];
+                    Action = new CommandHandler((parseResult) => {
+                        ParseRootOptions(parseResult); 
+                        ParsePlayerListOptions(parseResult, out var players, out bool isRandomPlayerOrder);
 
-                var playerList = new List<Model.Player>();
-                foreach(var player in players!) {
-                    playerList.Add(new Model.Player(player));
+                        var size = parseResult.GetValue(Options.SizeOption);
+                        var boardsNumber = parseResult.GetValue(Options.BoardsNumberOption);
+                        var scoringLength = parseResult.GetValue(Options.ScoringLengthOption);
+                        var isBoardDoneWhenScored = parseResult.GetValue(Options.IsBoardDoneWhenScoredOption);
+                        var isKriegspiel = parseResult.GetValue(Options.IsKriegspiel);
+                        var isSynchronousMode = parseResult.GetValue(Options.SynchronousModeOption);
+
+                        var boardBuilders = new BoardBuilder[boardsNumber!.Value];
+                        for(var i = 0; i < boardsNumber!; i+=1) {
+                            boardBuilders[i] = new BoardBuilder(
+                                size!.Value,
+                                size!.Value,
+                                new TicTacToeRuleset(scoringLength, isBoardDoneWhenScored)
+                            );
+                        }
+
+                        GameState = new GameState<TicTacToePlayAction>(
+                            players,
+                            new TicTacToeTemplate(boardBuilders, isKriegspiel: isKriegspiel, isSynchronousMode: isSynchronousMode),
+                            isRandomPlayerOrder: isRandomPlayerOrder
+                        );
+                        return parseResult.Errors.Count;
+                    }), 
+                },
+                new Command("load") {
+                    Action = new CommandHandler(parseResult => {
+                        ParseRootOptions(parseResult);
+                        if(StateFilePath!.Exists) {
+                            GameState = StateStorage.LoadState(StateFilePath.FullName);
+                            Console.Out.WriteLine($"Loaded saved game!");
+                            return parseResult.Errors.Count;
+                        } else {
+                            Console.Error.WriteLine($"Cannot load game, file '{StateFilePath.FullName}' not found.");
+                            return -1;
+                        }
+                    })
                 }
-                var playerArray = playerList.ToArray();
-
-                var joinAsPlayerUnion = joinAsPlayer == null
-                    ? OneOf<Model.Player, LocalHotseatGame>.FromT1(new LocalHotseatGame())
-                    : OneOf<Model.Player, LocalHotseatGame>.FromT0(new Model.Player(joinAsPlayer));
-
-                for(var i = 0; i < boardsNumber!; i+=1) {
-                    boardBuilders[i] = new BoardBuilder(
-                        size!.Value,
-                        size!.Value,
-                        new TicTacToeRuleset(scoringLength, isBoardDoneWhenScored)
-                    );
-                }
-                
-                GameLogic.RunGame (
-                    file,
-                    doForceNewGame,
-                    playerArray,
-                    boardBuilders,
-                    joinAsPlayerUnion,
-                    isRandomPlayerOrder: isRandomPlayer,
-                    isSynchronousMode: isSynchronousMode
-                );
             }
+        };
+
+        gameCommand.Subcommands.AddRange(
+            GameTemplates.GetBuiltInGameTemplates().Select(template => new Command(template.CommandName!, template.Description) {
+                    Action = new CommandHandler(parseResult => {
+                        ParseRootOptions(parseResult); 
+                        ParsePlayerListOptions(parseResult, out var players, out bool isRandomPlayerOrder);
+                        GameState = new GameState<TicTacToePlayAction>(players, template, isRandomPlayerOrder);
+                        return parseResult.Errors.Count;
+                    })
+                }
+            )
         );
 
-        return rootCommand.Parse(
+        var parseResult = rootCommand.Parse(
             args, 
             new ParserConfiguration() {EnablePosixBundling = true}
-        )
-            .Invoke();
+        );
+        var invocationResult = parseResult.Invoke();
+
+        if (parseResult.Action is System.CommandLine.Help.HelpAction) {
+            return 0;
+        }
+
+        if(invocationResult != 0) {
+            return invocationResult;
+        }
+
+        var joinAsPlayerUnion = JoinAsPlayer == null
+            ? OneOf<Player, LocalHotseatGame>.FromT1(new LocalHotseatGame())
+            : OneOf<Player, LocalHotseatGame>.FromT0(new Player(JoinAsPlayer));
+            
+        if (StateFilePath != null && GameState != null) {
+            GameLogic.RunGame (
+                StateFilePath!,
+                GameState!,
+                joinAsPlayerUnion
+            );
+            return 0;
+        } else {
+            Console.Error.WriteLine("No Gamestate or State File Path available.  Aborting...");
+            return -1;
+        }
+    }
+
+	private static void ParsePlayerListOptions(ParseResult parseResult, out Player[] players, out bool isRandomPlayerOrder)
+	{
+		players = parseResult
+            .GetValue(Options.PlayersOption)!
+            .Select(p => new Player(p))
+            .ToArray();
+		isRandomPlayerOrder = parseResult.GetValue(Options.RandomOption);
+	}
+
+	private static void ParseRootOptions(ParseResult parseResult) {
+        StateFilePath = parseResult.GetValue(Options.StateFileOption);
+        JoinAsPlayer = parseResult.GetValue(Options.JoinAsPlayerOption);
+    }
+
+    private class CommandHandler(Func<ParseResult, int> action) : SynchronousCommandLineAction {
+        public override int Invoke(ParseResult parseResult) => action(parseResult);
     }
 }

@@ -1,0 +1,27 @@
+{
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:59481",
+      "sslPort": 44308
+    }
+  },
+  "profiles": {
+    "game-tictactoe": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "commandLineArgs": "game tictactoe"
+    },
+    "custom": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "commandLineArgs": "custom"
+    },
+    "load": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "commandLineArgs": "load"
+    }
+  }
+}

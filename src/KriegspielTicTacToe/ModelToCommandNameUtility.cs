@@ -90,7 +90,7 @@ public static class ModelToCommandNameUtility {
         ) {
             return boardView.GetSpaceName(col, row);
         } else {
-            return (spaceView.Mark ?? "").PadLeft(boardView.SpaceNameLength);
+            return spaceView.Mark ?? "";
         }
     }
 }

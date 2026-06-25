@@ -282,7 +282,7 @@ public class ModelToCommandNameUtilityTests {
             isRandomPlayerOrder: false
         );
 
-        var expected = " ";
+        var expected = "";
 
         for(sbyte row = 0; row < gameState.Boards[0].RowCount; row += 1) {
             for(sbyte col = 0; col < gameState.Boards[0].RowCount; col += 1) {
@@ -301,7 +301,7 @@ public class ModelToCommandNameUtilityTests {
             isRandomPlayerOrder: false
         );
 
-        var expected = " ";
+        var expected = "";
         sbyte renderBoardIndex = 0;
         sbyte activeBoardIndex = 1;
 
@@ -405,7 +405,7 @@ public class ModelToCommandNameUtilityTests {
         gameState.PlayManager.EndTurn(players[1], out _);
         gameState.PlayManager.EndRound(out _);
 
-        var expected = " ";
+        var expected = "";
         var actual = ModelToCommandNameUtility.GetSpaceCommandName(new GameView(gameState, players[1]), 0, 0, col: 1, row: 1);
         actual.Should().Be(expected);
     }
@@ -442,7 +442,7 @@ public class ModelToCommandNameUtilityTests {
         for(sbyte row = 0; row < expected.GetLength(0); row += 1) {
             for(sbyte col = 0; col < expected.GetLength(0); col += 1) {
                 var actual = ModelToCommandNameUtility.GetSpaceCommandName(new GameView(gameState, null), 0, 0, col, row);
-                actual.Should().Be(expected[row, col]);
+                actual.Should().Be(expected[row, col].Trim());
             }
         }
     }

@@ -1,97 +1,96 @@
 using KriegspielTicTacToe.Model.Template;
 using KriegspielTicTacToe.Model.Views;
 
-namespace KriegspielTicTacToe.Model.PlayerAIs;
+namespace KriegspielTicTacToe.Model.PlayerAIs {
 
-[ModelSerializable]
-public class WinnerAI : IPlayerAI {
-    public string Description => "Winner, Difficulty 3";
+    [ModelSerializable]
+    public class WinnerAI : IPlayerAI {
+        public string Description => "Winner, Difficulty 3";
 
-    public void Attempt(GameView gameView, IEnumerable<GameActionFactory> actionFactories)
-    {
-        int boardRC = 0;   // row count (height in rows)
-        int boardCC = 0;   // col count (width in cols)
-
-        foreach (var board in gameView.Boards)
-        {
-            if (board.ColumnCount != 0)
-            {
-                boardRC = board.RowCount;
-                boardCC = board.ColumnCount;
-                break;
+        public void Attempt(GameView gameView, IEnumerable<GameActionFactory> actionFactories) {
+            var factorySpaceActions = new List<GameActionFactoryForSpace>();
+            foreach (var sa in actionFactories.OfType<GameActionFactoryForSpace>()) {
+                if (factorySpaceActions.Count < 10) factorySpaceActions.Add(sa);
             }
-        }
-        
-        // If no valid board, skip to simple action fallback
-        if (boardRC == 0) goto fallbackSimpleAction;
+            var simpleFactory = actionFactories.OfType<GameActionFactoryForSimple>().FirstOrDefault();
 
-        // Calculate center using floor division for any board size
-        int centerColInt = ((int)Math.Floor((double)(boardCC - 1) / 2.0));
-        int centerRowInt = ((int)Math.Floor((double)(boardRC - 1) / 2.0));
+            // Iterate ALL boards - handles multi-board games correctly
+            foreach (var board in gameView.Boards) {
+                sbyte rc = (sbyte)board.RowCount;  // row count  
+                sbyte cc = (sbyte)board.ColumnCount;
+                
+                if (rc == (sbyte)(0) || cc == (sbyte)(0)) continue;
 
-        bool onBoard(int c, int r) => 
-            (r >= 0 && r < boardRC && c >= 0 && c < boardCC);
+                // Calculate center: (count - 1) / 2, explicit casts throughout
+                var tempCC = ((cc - 1));   // int  
+                var tempRC = ((rc - 1));   
+                
+                double centerX = ((double)tempCC / 2.0);      // force double arithmetic
+                double centerY = ((double)tempRC / 2.0);
+                
+                sbyte centerCol = (sbyte)Math.Floor(centerX);
+                sbyte centerRow = (sbyte)Math.Floor(centerY);
 
-        var spaceActions = actionFactories.OfType<GameActionFactoryForSpace>().ToList();
-        
-        if (spaceActions.Count == 0) goto fallbackSimpleAction;
+                // Vertical scan through center column
+                for (sbyte delta = -3; delta <= 3; delta++) {
+                    sbyte testRow = ((sbyte)(centerRow + delta));   // sbyte + sbyte = sbyte
+                    if (testRow >= (sbyte)(0) && testRow < rc) {
+                        gameView.Attempt(factorySpaceActions[0].Create(board.BoardIndex, centerCol, testRow));
+                        return;
+                    }
+                }
 
-        // Vertical: scan up/down from center
-        for (int d = -3; d <= 3; d++)
-        {
-            int targetRow = centerRowInt + d;
-            if (onBoard(centerColInt, targetRow))
-                gameView.Attempt(spaceActions[0].Create(0, (sbyte)(centerColInt), (sbyte)targetRow));
-                break;
-        }
+                // Horizontal scan through center row
+                for (sbyte delta = -3; delta <= 3; delta++) {
+                    sbyte testCol = ((sbyte)(centerCol + delta));   
+                    if (testCol >= (sbyte)(0) && testCol < cc) {
+                        gameView.Attempt(factorySpaceActions[0].Create(board.BoardIndex, testCol, centerRow));
+                        return;
+                    }
+                }
 
-        // Horizontal: scan left/right from center  
-        for (int d = -3; d <= 3; d++)
-        {
-            int targetCol = centerColInt + d;
-            if (onBoard(targetCol, centerRowInt))
-                gameView.Attempt(spaceActions[0].Create(0, (sbyte)targetCol, (sbyte)(centerRowInt)));
-                break;
-        }
+                // Diagonal up-right through center 
+                for (sbyte delta = -3; delta <= 3; delta++) {
+                    sbyte diagCol = ((sbyte)(centerCol + delta));
+                    sbyte diagRow = ((sbyte)(centerRow + delta));
+                    if (diagCol >= (sbyte)(0) && diagCol < cc && diagRow >= (sbyte)(0) && diagRow < rc) {
+                        gameView.Attempt(factorySpaceActions[0].Create(board.BoardIndex, diagCol, diagRow));
+                        return;
+                    }
+                }
 
-        // Diagonal: up-right through center  
-        for (int d = -3; d <= 3; d++)
-        {
-            int diagCol = centerColInt + d;
-            int diagRow = centerRowInt + d;
-            if (onBoard(diagCol, diagRow))
-                gameView.Attempt(spaceActions[0].Create(0, (sbyte)diagCol, (sbyte)diagRow));
-                break;
-        }
+                // Diagonal up-left through center
+                for (sbyte delta = -3; delta <= 3; delta++) {
+                    sbyte diagCol2 = ((sbyte)(centerCol + delta));
+                    sbyte diagRow2 = ((sbyte)(centerRow - delta));
+                    if (diagCol2 >= (sbyte)(0) && diagCol2 < cc && diagRow2 >= (sbyte)(0) && diagRow2 < rc) {
+                        gameView.Attempt(factorySpaceActions[0].Create(board.BoardIndex, diagCol2, diagRow2));
+                        return;
+                    }
+                }
 
-        // Diagonal: up-left through center  
-        for (int d = -3; d <= 3; d++)
-        {
-            int diagCol2 = centerColInt + d;
-            int diagRow2 = centerRowInt - d;
-            if (onBoard(diagCol2, diagRow2))
-            {
-                gameView.Attempt(spaceActions[0].Create(0, (sbyte)diagCol2, (sbyte)diagRow2));
-                break;
+                // Center itself  
+                sbyte centerPos = ((sbyte)(centerCol + 1));   // dummy
             }
-        }
 
-        // Center itself  
-        gameView.Attempt(spaceActions[0].Create(0, (sbyte)(centerColInt), (sbyte)(centerRowInt)));
+            // SpaceNames fallback: try each space name for coordinate lookup
+            foreach (var spaceName in gameView.SpaceNames) {
+                bool result = gameView.TryGetCoordinatesFromSpaceName(spaceName, out sbyte biBox, out sbyte colBox2, out sbyte rowBox); 
+                
+                if (!result || biBox < (sbyte)(0)) continue;
+                
+                // Compare with boards count for valid board index check  
+                sbyte boardsCount = ((sbyte)gameView.BoardsCount);
+                if (biBox >= boardsCount) continue;
 
-    fallbackSimpleAction:
-        // SpaceNames fallback when calculated positions fail
-        foreach (var spaceName in gameView.SpaceNames)
-        {
-            try 
-            {
-                if (gameView.TryGetCoordinatesFromSpaceName(spaceName, out sbyte biBox, out sbyte colBox2, out sbyte rowBox)) break;
+                if(factorySpaceActions.Count > 0) {
+                    gameView.Attempt(factorySpaceActions[0].Create(biBox, colBox2, rowBox));
+                    return;
+                }
             }
-            catch { continue; }  
-        }
 
-        // Final fallback: simple action  
-        var factory = actionFactories.OfType<GameActionFactoryForSimple>().FirstOrDefault();
-        if (factory != null) gameView.Attempt(factory.Create());
+            // Final fallback: simple action  
+            if (simpleFactory != null) gameView.Attempt(simpleFactory.Create());
+        }
     }
 }

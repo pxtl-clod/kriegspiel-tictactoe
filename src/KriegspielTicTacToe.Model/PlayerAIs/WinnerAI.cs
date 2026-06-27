@@ -7,60 +7,66 @@ namespace KriegspielTicTacToe.Model.PlayerAIs;
 public class WinnerAI : IPlayerAI {
     public string Description => "Winner, Difficulty 3";
 
+    /// <summary>
+    /// Attempt a move using smart positions on all boards. Handles 3x3 and larger boards correctly.
+    /// Uses coordinates (col, row) directly instead of space names.
+    /// </summary>
     public void Attempt(GameView gameView, IEnumerable<GameActionFactory> actionFactories)
     {
         var spaceActions = actionFactories.OfType<GameActionFactoryForSpace>().ToList();
         var simpleActions = actionFactories.OfType<GameActionFactoryForSimple>().ToList();
-        var availableSpaceNames = gameView.SpaceNames.ToList();
 
-        // For 3x3 small boards, try smart positions: center "5", then corners/edges  
-        bool isSmallBoard = availableSpaceNames.Count == 9 && 
-            allNumeric(availableSpaceNames);
-
-        if (isSmallBoard)
+        // First: try smart coordinate-based positions on 3x3 boards only
+        foreach (var board in gameView.Boards)
         {
-            foreach (var spaceName in new[] { "5", "1", "3", "7", "9", "2", "4", "6", "8" })
-            {
-                var factory = spaceActions.FirstOrDefault(f => f is GameActionFactoryForSpace);
-                if (factory != null)
-                {
-                    gameView.TryGetCoordinatesFromSpaceName(spaceName, out sbyte boardIdx, out var col, out var row);
-                    gameView.Attempt(factory.Create(boardIdx, col, row));
-                    return;
-                }
+            if (board.ColumnCount != 3 || board.RowCount != 3) continue;
 
-                // Simple action fallback
-                var simple = simpleActions.FirstOrDefault();
-                if (simple != null)
+            // Smart position priority using explicit coordinates:
+            // (col, row) are zero-based integers for a 3x3 board
+            var smartPositions = new[] { 
+                ((sbyte)1, (sbyte)1),   // center - highest priority
+                ((sbyte)0, (sbyte)0),   // bottom-left corner
+                ((sbyte)2, (sbyte)0),   // top-right corner  
+                ((sbyte)0, (sbyte)2),   // top-left corner
+                ((sbyte)2, (sbyte)2),   // bottom-right corner
+            };
+
+            foreach (var pos in smartPositions)
+            {
+                if (spaceActions.Count > 0)
                 {
-                    gameView.Attempt(simple.Create());
-                    return;
+                    var result = gameView.Attempt(spaceActions[0].Create(board.BoardIndex, pos.Item1, pos.Item2));
+                    if (result.IsTurnDone) {
+                        return;
+                    }
                 }
             }
         }
-        else
-        {
-            // Large board or multi-board: play first available space action
-            if (spaceActions.Any())
-            {
-                var factory = spaceActions.First();
-                foreach (var space in availableSpaceNames)
-                {
-                    gameView.TryGetCoordinatesFromSpaceName(space, out sbyte _, out _, out _);
-                    gameView.Attempt(factory.Create(0, 0, 0));
-                    return;
-                }
 
-                // Fallback: simple action if no valid space found
-                var simple = simpleActions.FirstOrDefault();
-                if (simple != null)
+        // Second: for larger boards or when no space moves were available, try SpaceNames fallback
+        foreach (var spaceName in gameView.SpaceNames)
+        {
+            if (gameView.TryGetCoordinatesFromSpaceName(spaceName, out sbyte boardIndex, out var col, out var row))
+            {
+                // Only try space actions on boards where they're available.
+                if (spaceActions.Count > 0)
                 {
-                    gameView.Attempt(simple.Create());
+                    var result = gameView.Attempt(spaceActions[0].Create(boardIndex, col, row));
+                    if (result.IsTurnDone) {
+                        return;
+                    }
                 }
+            }
+        }
+
+        // Space actions not available for this game, fallback to simple actions.
+        if (simpleActions.Count > 0)
+        {
+            var simple = simpleActions[simpleActions.Count - 1];
+            var result = gameView.Attempt(simple.Create());
+            if (result.IsTurnDone) {
+                return;
             }
         }
     }
-
-    private static bool allNumeric(IEnumerable<string> strings) =>
-        strings.All(s => int.TryParse(s, out _));
 }

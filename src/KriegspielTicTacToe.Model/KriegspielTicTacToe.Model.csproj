@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="PxtlCa.Collections" Version="0.2.0" />
     <PackageReference Include="PxtlCa.SystemCollectionsExtensions" Version="0.3.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="OneOf" Version="3.0.263" />

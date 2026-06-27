@@ -42,11 +42,19 @@ internal static class ConsoleLoop {
                         //AI turns.  Keep attempting until no AI player does a
                         //turn.
                         isDoneAITurns = false; 
+                        var attemptCount = 0;
                         while (state.PlayManager.CanTakeTurn(player)) {
                             using(var stateStorage = new StateStorage(sharedStateFilePath.FullName, out state)) {
                                 var gameView = state.GetView(player);
-                                playerAI.Attempt(gameView, gameView.GetAvailableActions());
+                                if (attemptCount > AIGameRunner.MaxPlayerAIAttemptCount) {
+                                    // resign if the player AI can't figure out a legal move.
+                                    gameView.ResignPlayer();
+                                } else {
+                                    attemptCount += 1;
+                                    playerAI.Attempt(gameView, gameView.GetAvailableActions());
+                                }
                             }
+                            
                         }
                         Console.Out.WriteLine($"AI Player {player} has finished their turn.");
                         //DEBUG

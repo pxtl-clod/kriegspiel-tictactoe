@@ -46,6 +46,14 @@ internal static class Options {
         AllowMultipleArgumentsPerToken = true
     };
 
+    public static Option<string[]> AI3PlayersOption = new("-ai3", "-3") {
+        Description = "Difficulty 3 'Aster' AI (corrected llm algo, weak) player mark characters.  Provide them space-separated like with players.",
+        DefaultValueFactory = (result) => [],
+        CustomParser = ParsePlayerMarkArray,
+        Recursive = true,
+        AllowMultipleArgumentsPerToken = true
+    };
+
     public static Option<bool> RandomOption = new("--random", "-r") {
         Description = "Randomize player order.",
         Recursive = true

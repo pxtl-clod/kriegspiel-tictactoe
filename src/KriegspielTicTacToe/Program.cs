@@ -149,8 +149,10 @@ public class Program {
         JoinAsPlayer = parseResult.GetValue(Options.JoinAsPlayerOption);
         var ai1Players = parseResult.GetValue(Options.AI1PlayersOption) ?? [];
         var ai2Players = parseResult.GetValue(Options.AI2PlayersOption) ?? [];
+        var ai3Players = parseResult.GetValue(Options.AI3PlayersOption) ?? [];
         AIPlayers.AddRange(ai1Players.Select(a => new KeyValuePair<Player, IPlayerAI>(new Player(a), new RandomAI())));
         AIPlayers.AddRange(ai2Players.Select(a => new KeyValuePair<Player, IPlayerAI>(new Player(a), new ClodAI())));
+        AIPlayers.AddRange(ai3Players.Select(a => new KeyValuePair<Player, IPlayerAI>(new Player(a), new AsterAI())));
     }
 
     private class CommandHandler(Func<ParseResult, int> action) : SynchronousCommandLineAction {

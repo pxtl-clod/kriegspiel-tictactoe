@@ -38,13 +38,13 @@ Description:
   Start a new game using a pre-defined game template.
 
 Usage:
-  KriegspielTicTacToe game [command] [options]
+  KriegspielMNK game [command] [options]
 
 Options:
   -p, --players <players>  Players mark characters.  Provide them space-separated, eg '-p A B C X Y Z' for a 6-player game. [default: X|O]
   -r, --random             Randomize player order.
   -?, -h, --help           Show help and usage information
-  -f, --file <file>        Path to the json file where gamestate is stored.  Will be resumed automatically if you kill the game (ctrl-C). Use a fileshare for network multiplayer. [default: /home/pxtl/.config/KriegspielTicTacToe.json]
+  -f, --file <file>        Path to the json file where gamestate is stored.  Will be resumed automatically if you kill the game (ctrl-C). Use a fileshare for network multiplayer. [default: /home/pxtl/.config/KriegspielMNK.json]
   -j, --join <join>        Join as given player char mark. Must match a mark in players list. Hotseat mode if not provided.
 
 Commands:
@@ -73,11 +73,11 @@ Conversely, to start a multiplayer game with the default rules (2 players X and
 O on a 3x3 board) on a fileshare named `\\kosmos\storage` with random
 start-player, the command would be 
 
-> `dotnet run KriegspielTicTacToe -f \\kosmos\storage\temp\ksttt.json -j X -r`
+> `kriegspiel-mnk -f \\kosmos\storage\temp\ksttt.json -j X -r`
 
 And then your friend (on another computer with similar access to `\\kosmos\storage\`) can join with 
 
-> `dotnet run KriegspielTicTacToe -f \\kosmos\storage\temp\ksttt.json -j O`
+> `kriegspiel-mnk -f \\kosmos\storage\temp\ksttt.json -j O`
 
 any game-rule options you pass in when joining an existing game like size,
 players, or randomization will be ignored.

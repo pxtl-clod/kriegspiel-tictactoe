@@ -54,13 +54,8 @@ internal static class ConsoleLoop {
                                     playerAI.Attempt(gameView, gameView.AvailableActions);
                                 }
                             }
-                            
                         }
                         Console.Out.WriteLine($"AI Player {player} has finished their turn.");
-                        //DEBUG
-                        Console.Out.WriteLine(
-                            BoardRenderer.DrawBoards(state.GetView(null), maxRenderWidth: Console.BufferWidth)
-                        );
                     }
                 }
             }

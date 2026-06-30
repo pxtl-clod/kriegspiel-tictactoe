@@ -2,26 +2,6 @@
 
 This document contains incomplete plans for new features.  When ready, they will be moved to TODO.
 
-## Name
-
-Rename to ksttt?  KriegspielTicTacToe is too long. Ksttt for C# package?
-
-## AI player
-Implementing an AI player will require several steps
-
- - Clean API for AI player that only gives them legal commands available.
- - UI for adding an AI player.
-
-## Predefined gametypes
- - Define play-modes, list of boards.
- - Serializable config to json.
- - CLI commands
-    - load (loads existing saved game, gametype is persisted in there)
-    - new
-        - type (starts new game with predefined game-type)
-        - typefile (starts new game from game-type file)
-        - custom (starts new game usinq quick params for game-type)
-
 ## GUI
 Use Uno or Avalonia for a GUI. Google recommends Avalonia for sliding animations.
 
@@ -31,6 +11,13 @@ hack. Need a proper API.
 
  - Need a way to extract a player-view of the gamestate, that state can be sent
    to clients and renderers. KriegspielTicTacToe.PlayerViewModel?
+
+## Incomplete Information Tic-Tac-Toe
+
+https://www.smbc-comics.com/comic/incomplete
+
+https://mastodon.social/@ZachWeinersmith/111896904870106666
+
 
 ## Drop Mode
 A mode where pieces are placed in from the top, Drop-4 style.

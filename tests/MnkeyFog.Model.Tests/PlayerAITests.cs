@@ -16,13 +16,13 @@ public class PlayerAITests {
     }
 
     [Fact]
-    public void AIGameRunner_WeinersmithGameEnds() {
+    public void AIGameRunner_KriegspielTicTacToeGameEnds() {
         var playerAIs = new OrderedDictionary<Player, IPlayerAI> {
             [new Player("X")] = new RandomAI(),
             [new Player("O")] = new RandomAI()
         };
         var action = () => {
-            AIGameRunner.RunAIGame(GameTemplates.Weinersmith, playerAIs);
+            AIGameRunner.RunAIGame(GameTemplates.KriegspielTicTacToe, playerAIs);
         };
         action.Should().NotThrow();
     }
@@ -52,7 +52,7 @@ public class PlayerAITests {
     }
 
     [Fact]
-    public void AIGameRunner_KriegspielGomokuEnds() {
+    public void AIGameRunner_FogGomokuEnds() {
         var playerAIs = new OrderedDictionary<Player, IPlayerAI> {
             [new Player("A")] = new RandomAI(),
             [new Player("B")] = new RandomAI(),
@@ -68,7 +68,7 @@ public class PlayerAITests {
     }
 
     [Fact]
-    public void AIGameRunner_SynchroWeinersmithEnds() {
+    public void AIGameRunner_FogTicTacToeEnds() {
         var playerAIs = new OrderedDictionary<Player, IPlayerAI> {
             [new Player("A")] = new RandomAI(),
             [new Player("B")] = new RandomAI(),
@@ -103,7 +103,7 @@ public class PlayerAITests {
     }
 
     [Fact]
-    public void AIGameRunner_SynchroWeinersmith_AsterAIvsRandom() {
+    public void AIGameRunner_FogTicTacToe_AsterAIvsRandom() {
         // AsterAI vs RandomAI should show AsterAI winning more often
         int iterations = 10;
 

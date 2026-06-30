@@ -5,7 +5,7 @@ namespace MnkeyFog.Model;
 public static partial class GameTemplates {
     public static GameTemplate FogTicTacToe {get;} = new MNKTemplate(
         "fog-tictactoe",
-        "Zach Weinersmith's Kriegspiel Tic-Tac-Toe, but with more players and synchronous play.",
+        "Zach Weinersmith's Kriegspiel Tic-Tac-Toe, but with more players and synchronous play. Play continues until all spaces are full.",
         [2,3,4], //legal player-counts
         [
             new(3, 3, new MNKBoardRuleset()),
